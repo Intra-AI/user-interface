@@ -136,6 +136,12 @@ const MarketplaceAdminSettings = () => {
       },
     },
     {
+      label: SystemRoles.MANAGER,
+      onClick: () => {
+        setSelectedRole(SystemRoles.MANAGER);
+      },
+    },
+    {
       label: SystemRoles.ADMIN,
       onClick: () => {
         setSelectedRole(SystemRoles.ADMIN);

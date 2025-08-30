@@ -209,6 +209,14 @@ const registerUser = async (user, additionalData = {}) => {
     //determine if this is the first registered user (not counting anonymous_user)
     const isFirstRegisteredUser = (await countUsers()) === 0;
 
+    // Determine user role: use provided role, or assign ADMIN to first user, USER to others
+    let userRole = SystemRoles.USER;
+    if (additionalData.role && Object.values(SystemRoles).includes(additionalData.role)) {
+      userRole = additionalData.role;
+    } else if (isFirstRegisteredUser) {
+      userRole = SystemRoles.ADMIN;
+    }
+
     const salt = bcrypt.genSaltSync(10);
     const newUserData = {
       provider: provider ?? 'local',
@@ -216,7 +224,7 @@ const registerUser = async (user, additionalData = {}) => {
       username,
       name,
       avatar: null,
-      role: isFirstRegisteredUser ? SystemRoles.ADMIN : SystemRoles.USER,
+      role: userRole,
       password: bcrypt.hashSync(password, salt),
       ...additionalData,
     };
