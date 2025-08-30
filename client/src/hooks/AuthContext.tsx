@@ -42,6 +42,9 @@ const AuthContextProvider = ({
   const { data: userRole = null } = useGetRole(SystemRoles.USER, {
     enabled: !!(isAuthenticated && (user?.role ?? '')),
   });
+  const { data: managerRole = null } = useGetRole(SystemRoles.MANAGER, {
+    enabled: !!(isAuthenticated && user?.role === SystemRoles.MANAGER),
+  });
   const { data: adminRole = null } = useGetRole(SystemRoles.ADMIN, {
     enabled: !!(isAuthenticated && user?.role === SystemRoles.ADMIN),
   });
@@ -214,12 +217,13 @@ const AuthContextProvider = ({
       setError,
       roles: {
         [SystemRoles.USER]: userRole,
+        [SystemRoles.MANAGER]: managerRole,
         [SystemRoles.ADMIN]: adminRole,
       },
       isAuthenticated,
     }),
 
-    [user, error, isAuthenticated, token, userRole, adminRole],
+    [user, error, isAuthenticated, token, userRole, managerRole, adminRole],
   );
 
   return <AuthContext.Provider value={memoedValue}>{children}</AuthContext.Provider>;

@@ -1,6 +1,7 @@
 const path = require('path');
 const mongoose = require('mongoose');
 const { User } = require('@librechat/data-schemas').createModels(mongoose);
+const { SystemRoles } = require('librechat-data-provider');
 require('module-alias')({ base: path.resolve(__dirname, '..', 'api') });
 const { registerUser } = require('~/server/services/AuthService');
 const { askQuestion, silentExit } = require('./helpers');
@@ -28,6 +29,7 @@ const connect = require('./connect');
   let name = '';
   let username = '';
   let emailVerified = true;
+  let role = SystemRoles.USER;
 
   // Parse command line arguments
   for (let i = 2; i < process.argv.length; i++) {
@@ -77,6 +79,24 @@ const connect = require('./connect');
     }
   }
 
+  // Ask for user role
+  const roleOptions = Object.values(SystemRoles);
+  const roleInput = await askQuestion(`User role? (${roleOptions.join('/')}, default is ${SystemRoles.USER}):
+
+${SystemRoles.USER}: Default user role with standard permissions
+${SystemRoles.MANAGER}: Additional rights, more than user but less than admin  
+${SystemRoles.ADMIN}: Full administrative access`);
+
+  if (roleInput) {
+    const roleValue = roleInput.toUpperCase();
+    if (Object.values(SystemRoles).includes(roleValue)) {
+      role = roleValue;
+    } else {
+      console.red(`Error: Invalid role "${roleValue}". Valid roles are: ${Object.values(SystemRoles).join(', ')}`);
+      silentExit(1);
+    }
+  }
+
   // Only prompt for emailVerified if it wasn't set via CLI
   if (!process.argv.some((arg) => arg.startsWith('--email-verified='))) {
     const emailVerifiedInput = await askQuestion(`Email verified? (Y/n, default is Y):
@@ -99,10 +119,10 @@ or the user will need to attempt logging in to have a verification link sent to 
     silentExit(1);
   }
 
-  const user = { email, password, name, username, confirm_password: password };
+  const user = { email, password, name, username, confirm_password: password, role };
   let result;
   try {
-    result = await registerUser(user, { emailVerified });
+    result = await registerUser(user, { emailVerified, role });
   } catch (error) {
     console.red('Error: ' + error.message);
     silentExit(1);
@@ -116,6 +136,7 @@ or the user will need to attempt logging in to have a verification link sent to 
   const userCreated = await User.findOne({ $or: [{ email }, { username }] });
   if (userCreated) {
     console.green('User created successfully!');
+    console.green(`Role: ${userCreated.role}`);
     console.green(`Email verified: ${userCreated.emailVerified}`);
     silentExit(0);
   }
