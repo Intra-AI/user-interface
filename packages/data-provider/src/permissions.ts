@@ -56,6 +56,21 @@ export enum PermissionTypes {
    * Type for MCP Server Permissions
    */
   MCP_SERVERS = 'MCP_SERVERS',
+   /** Type for File Upload/Attach Files feature
+   */
+  FILE_UPLOAD = 'FILE_UPLOAD',
+  /**
+   * Type for Help & FAQ access
+   */
+  HELP_FAQ = 'HELP_FAQ',
+  /**
+   * Type for Parameters section in right panel
+   */
+  PARAMETERS = 'PARAMETERS',
+  /**
+   * Type for Right Side Panel access
+   */
+  SIDE_PANEL = 'SIDE_PANEL',
 }
 
 /**
@@ -154,6 +169,25 @@ export const mcpServersPermissionsSchema = z.object({
   [Permissions.SHARE]: z.boolean().default(false),
 });
 export type TMcpServersPermissions = z.infer<typeof mcpServersPermissionsSchema>;
+export const fileUploadPermissionsSchema = z.object({
+  [Permissions.USE]: z.boolean().default(true),
+});
+export type TFileUploadPermissions = z.infer<typeof fileUploadPermissionsSchema>;
+
+export const helpFaqPermissionsSchema = z.object({
+  [Permissions.USE]: z.boolean().default(true),
+});
+export type THelpFaqPermissions = z.infer<typeof helpFaqPermissionsSchema>;
+
+export const parametersPermissionsSchema = z.object({
+  [Permissions.USE]: z.boolean().default(true),
+});
+export type TParametersPermissions = z.infer<typeof parametersPermissionsSchema>;
+
+export const sidePanelPermissionsSchema = z.object({
+  [Permissions.USE]: z.boolean().default(true),
+});
+export type TSidePanelPermissions = z.infer<typeof sidePanelPermissionsSchema>;
 
 // Define a single permissions schema that holds all permission types.
 export const permissionsSchema = z.object({
@@ -170,4 +204,8 @@ export const permissionsSchema = z.object({
   [PermissionTypes.FILE_SEARCH]: fileSearchPermissionsSchema,
   [PermissionTypes.FILE_CITATIONS]: fileCitationsPermissionsSchema,
   [PermissionTypes.MCP_SERVERS]: mcpServersPermissionsSchema,
+  [PermissionTypes.FILE_UPLOAD]: fileUploadPermissionsSchema,
+  [PermissionTypes.HELP_FAQ]: helpFaqPermissionsSchema,
+  [PermissionTypes.PARAMETERS]: parametersPermissionsSchema,
+  [PermissionTypes.SIDE_PANEL]: sidePanelPermissionsSchema,
 });
