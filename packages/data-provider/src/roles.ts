@@ -14,6 +14,10 @@ import {
   temporaryChatPermissionsSchema,
   peoplePickerPermissionsSchema,
   fileCitationsPermissionsSchema,
+  fileUploadPermissionsSchema,
+  helpFaqPermissionsSchema,
+  parametersPermissionsSchema,
+  sidePanelPermissionsSchema,
 } from './permissions';
 
 /**
@@ -93,6 +97,18 @@ const defaultRolesSchema = z.object({
       [PermissionTypes.FILE_CITATIONS]: fileCitationsPermissionsSchema.extend({
         [Permissions.USE]: z.boolean().default(true),
       }),
+      [PermissionTypes.FILE_UPLOAD]: fileUploadPermissionsSchema.extend({
+        [Permissions.USE]: z.boolean().default(true),
+      }),
+      [PermissionTypes.HELP_FAQ]: helpFaqPermissionsSchema.extend({
+        [Permissions.USE]: z.boolean().default(true),
+      }),
+      [PermissionTypes.PARAMETERS]: parametersPermissionsSchema.extend({
+        [Permissions.USE]: z.boolean().default(true),
+      }),
+      [PermissionTypes.SIDE_PANEL]: sidePanelPermissionsSchema.extend({
+        [Permissions.USE]: z.boolean().default(true),
+      }),
     }),
   }),
   [SystemRoles.MANAGER]: roleSchema.extend({
@@ -107,11 +123,11 @@ const defaultRolesSchema = z.object({
         [Permissions.USE]: z.boolean().default(true),
       }),
       [PermissionTypes.MEMORIES]: memoryPermissionsSchema.extend({
-        [Permissions.USE]: z.boolean().default(true),
-        [Permissions.CREATE]: z.boolean().default(true),
-        [Permissions.UPDATE]: z.boolean().default(true),
-        [Permissions.READ]: z.boolean().default(true),
-        [Permissions.OPT_OUT]: z.boolean().default(true),
+        [Permissions.USE]: z.boolean().default(false),
+        [Permissions.CREATE]: z.boolean().default(false),
+        [Permissions.UPDATE]: z.boolean().default(false),
+        [Permissions.READ]: z.boolean().default(false),
+        [Permissions.OPT_OUT]: z.boolean().default(false),
       }),
       [PermissionTypes.AGENTS]: agentPermissionsSchema.extend({
         [Permissions.SHARED_GLOBAL]: z.boolean().default(true),
@@ -145,11 +161,82 @@ const defaultRolesSchema = z.object({
       [PermissionTypes.FILE_CITATIONS]: fileCitationsPermissionsSchema.extend({
         [Permissions.USE]: z.boolean().default(true),
       }),
+      [PermissionTypes.FILE_UPLOAD]: fileUploadPermissionsSchema.extend({
+        [Permissions.USE]: z.boolean().default(false),
+      }),
+      [PermissionTypes.HELP_FAQ]: helpFaqPermissionsSchema.extend({
+        [Permissions.USE]: z.boolean().default(false),
+      }),
+      [PermissionTypes.PARAMETERS]: parametersPermissionsSchema.extend({
+        [Permissions.USE]: z.boolean().default(false),
+      }),
+      [PermissionTypes.SIDE_PANEL]: sidePanelPermissionsSchema.extend({
+        [Permissions.USE]: z.boolean().default(true),
+      }),
     }),
   }),
   [SystemRoles.USER]: roleSchema.extend({
     name: z.literal(SystemRoles.USER),
-    permissions: permissionsSchema,
+    permissions: permissionsSchema.extend({
+      [PermissionTypes.PROMPTS]: promptPermissionsSchema.extend({
+        [Permissions.SHARED_GLOBAL]: z.boolean().default(false),
+        [Permissions.USE]: z.boolean().default(true),
+        [Permissions.CREATE]: z.boolean().default(true),
+      }),
+      [PermissionTypes.BOOKMARKS]: bookmarkPermissionsSchema.extend({
+        [Permissions.USE]: z.boolean().default(true),
+      }),
+      [PermissionTypes.MEMORIES]: memoryPermissionsSchema.extend({
+        [Permissions.USE]: z.boolean().default(false),
+        [Permissions.CREATE]: z.boolean().default(false),
+        [Permissions.UPDATE]: z.boolean().default(false),
+        [Permissions.READ]: z.boolean().default(false),
+        [Permissions.OPT_OUT]: z.boolean().default(false),
+      }),
+      [PermissionTypes.AGENTS]: agentPermissionsSchema.extend({
+        [Permissions.SHARED_GLOBAL]: z.boolean().default(false),
+        [Permissions.USE]: z.boolean().default(true),
+        [Permissions.CREATE]: z.boolean().default(true),
+      }),
+      [PermissionTypes.MULTI_CONVO]: multiConvoPermissionsSchema.extend({
+        [Permissions.USE]: z.boolean().default(true),
+      }),
+      [PermissionTypes.TEMPORARY_CHAT]: temporaryChatPermissionsSchema.extend({
+        [Permissions.USE]: z.boolean().default(true),
+      }),
+      [PermissionTypes.RUN_CODE]: runCodePermissionsSchema.extend({
+        [Permissions.USE]: z.boolean().default(true),
+      }),
+      [PermissionTypes.WEB_SEARCH]: webSearchPermissionsSchema.extend({
+        [Permissions.USE]: z.boolean().default(true),
+      }),
+      [PermissionTypes.PEOPLE_PICKER]: peoplePickerPermissionsSchema.extend({
+        [Permissions.VIEW_USERS]: z.boolean().default(false),
+        [Permissions.VIEW_GROUPS]: z.boolean().default(false),
+        [Permissions.VIEW_ROLES]: z.boolean().default(false),
+      }),
+      [PermissionTypes.MARKETPLACE]: z.object({
+        [Permissions.USE]: z.boolean().default(false),
+      }),
+      [PermissionTypes.FILE_SEARCH]: fileSearchPermissionsSchema.extend({
+        [Permissions.USE]: z.boolean().default(true),
+      }),
+      [PermissionTypes.FILE_CITATIONS]: fileCitationsPermissionsSchema.extend({
+        [Permissions.USE]: z.boolean().default(true),
+      }),
+      [PermissionTypes.FILE_UPLOAD]: fileUploadPermissionsSchema.extend({
+        [Permissions.USE]: z.boolean().default(false),
+      }),
+      [PermissionTypes.HELP_FAQ]: helpFaqPermissionsSchema.extend({
+        [Permissions.USE]: z.boolean().default(false),
+      }),
+      [PermissionTypes.PARAMETERS]: parametersPermissionsSchema.extend({
+        [Permissions.USE]: z.boolean().default(false),
+      }),
+      [PermissionTypes.SIDE_PANEL]: sidePanelPermissionsSchema.extend({
+        [Permissions.USE]: z.boolean().default(false),
+      }),
+    }),
   }),
 });
 
@@ -203,6 +290,18 @@ export const roleDefaults = defaultRolesSchema.parse({
       [PermissionTypes.FILE_CITATIONS]: {
         [Permissions.USE]: true,
       },
+      [PermissionTypes.FILE_UPLOAD]: {
+        [Permissions.USE]: true,
+      },
+      [PermissionTypes.HELP_FAQ]: {
+        [Permissions.USE]: true,
+      },
+      [PermissionTypes.PARAMETERS]: {
+        [Permissions.USE]: true,
+      },
+      [PermissionTypes.SIDE_PANEL]: {
+        [Permissions.USE]: true,
+      },
     },
   },
   [SystemRoles.MANAGER]: {
@@ -216,11 +315,11 @@ export const roleDefaults = defaultRolesSchema.parse({
         [Permissions.USE]: true,
       },
       [PermissionTypes.MEMORIES]: {
-        [Permissions.USE]: true,
-        [Permissions.CREATE]: true,
-        [Permissions.UPDATE]: true,
-        [Permissions.READ]: true,
-        [Permissions.OPT_OUT]: true,
+        [Permissions.USE]: false,
+        [Permissions.CREATE]: false,
+        [Permissions.UPDATE]: false,
+        [Permissions.READ]: false,
+        [Permissions.OPT_OUT]: false,
       },
       [PermissionTypes.AGENTS]: {
         [Permissions.SHARED_GLOBAL]: true,
@@ -253,6 +352,18 @@ export const roleDefaults = defaultRolesSchema.parse({
       [PermissionTypes.FILE_CITATIONS]: {
         [Permissions.USE]: true,
       },
+      [PermissionTypes.FILE_UPLOAD]: {
+        [Permissions.USE]: false,
+      },
+      [PermissionTypes.HELP_FAQ]: {
+        [Permissions.USE]: false,
+      },
+      [PermissionTypes.PARAMETERS]: {
+        [Permissions.USE]: false,
+      },
+      [PermissionTypes.SIDE_PANEL]: {
+        [Permissions.USE]: true,
+      },
     },
   },
   [SystemRoles.USER]: {
@@ -276,6 +387,18 @@ export const roleDefaults = defaultRolesSchema.parse({
       },
       [PermissionTypes.FILE_SEARCH]: {},
       [PermissionTypes.FILE_CITATIONS]: {},
+      [PermissionTypes.FILE_UPLOAD]: {
+        [Permissions.USE]: false,
+      },
+      [PermissionTypes.HELP_FAQ]: {
+        [Permissions.USE]: false,
+      },
+      [PermissionTypes.PARAMETERS]: {
+        [Permissions.USE]: false,
+      },
+      [PermissionTypes.SIDE_PANEL]: {
+        [Permissions.USE]: false,
+      },
     },
   },
 });

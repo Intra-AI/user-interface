@@ -52,6 +52,22 @@ export enum PermissionTypes {
    * Type for using the "File Citations" feature in agents
    */
   FILE_CITATIONS = 'FILE_CITATIONS',
+  /**
+   * Type for File Upload/Attach Files feature
+   */
+  FILE_UPLOAD = 'FILE_UPLOAD',
+  /**
+   * Type for Help & FAQ access
+   */
+  HELP_FAQ = 'HELP_FAQ',
+  /**
+   * Type for Parameters section in right panel
+   */
+  PARAMETERS = 'PARAMETERS',
+  /**
+   * Type for Right Side Panel access
+   */
+  SIDE_PANEL = 'SIDE_PANEL',
 }
 
 /**
@@ -144,6 +160,26 @@ export const fileCitationsPermissionsSchema = z.object({
 });
 export type TFileCitationsPermissions = z.infer<typeof fileCitationsPermissionsSchema>;
 
+export const fileUploadPermissionsSchema = z.object({
+  [Permissions.USE]: z.boolean().default(true),
+});
+export type TFileUploadPermissions = z.infer<typeof fileUploadPermissionsSchema>;
+
+export const helpFaqPermissionsSchema = z.object({
+  [Permissions.USE]: z.boolean().default(true),
+});
+export type THelpFaqPermissions = z.infer<typeof helpFaqPermissionsSchema>;
+
+export const parametersPermissionsSchema = z.object({
+  [Permissions.USE]: z.boolean().default(true),
+});
+export type TParametersPermissions = z.infer<typeof parametersPermissionsSchema>;
+
+export const sidePanelPermissionsSchema = z.object({
+  [Permissions.USE]: z.boolean().default(true),
+});
+export type TSidePanelPermissions = z.infer<typeof sidePanelPermissionsSchema>;
+
 // Define a single permissions schema that holds all permission types.
 export const permissionsSchema = z.object({
   [PermissionTypes.PROMPTS]: promptPermissionsSchema,
@@ -158,4 +194,8 @@ export const permissionsSchema = z.object({
   [PermissionTypes.MARKETPLACE]: marketplacePermissionsSchema,
   [PermissionTypes.FILE_SEARCH]: fileSearchPermissionsSchema,
   [PermissionTypes.FILE_CITATIONS]: fileCitationsPermissionsSchema,
+  [PermissionTypes.FILE_UPLOAD]: fileUploadPermissionsSchema,
+  [PermissionTypes.HELP_FAQ]: helpFaqPermissionsSchema,
+  [PermissionTypes.PARAMETERS]: parametersPermissionsSchema,
+  [PermissionTypes.SIDE_PANEL]: sidePanelPermissionsSchema,
 });
