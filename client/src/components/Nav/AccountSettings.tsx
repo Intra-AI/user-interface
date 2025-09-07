@@ -1,11 +1,12 @@
 import { useState, memo, useRef } from 'react';
 import * as Select from '@ariakit/react/select';
 import { FileText, LogOut } from 'lucide-react';
+import { PermissionTypes, Permissions } from 'librechat-data-provider';
 import { LinkIcon, GearIcon, DropdownMenuSeparator, Avatar } from '@librechat/client';
 import { MyFilesModal } from '~/components/Chat/Input/Files/MyFilesModal';
 import { useGetStartupConfig, useGetUserBalance } from '~/data-provider';
 import { useAuthContext } from '~/hooks/AuthContext';
-import { useLocalize } from '~/hooks';
+import { useLocalize, useHasAccess } from '~/hooks';
 import Settings from './Settings';
 
 function AccountSettings() {
@@ -18,6 +19,11 @@ function AccountSettings() {
   const [showSettings, setShowSettings] = useState(false);
   const [showFiles, setShowFiles] = useState(false);
   const accountSettingsButtonRef = useRef<HTMLButtonElement>(null);
+
+  const hasHelpFaqAccess = useHasAccess({
+    permissionType: PermissionTypes.HELP_FAQ,
+    permission: Permissions.USE,
+  });
 
   return (
     <Select.SelectProvider>
@@ -67,7 +73,7 @@ function AccountSettings() {
           <FileText className="icon-md" aria-hidden="true" />
           {localize('com_nav_my_files')}
         </Select.SelectItem>
-        {startupConfig?.helpAndFaqURL !== '/' && (
+        {startupConfig?.helpAndFaqURL !== '/' && hasHelpFaqAccess && (
           <Select.SelectItem
             value=""
             onClick={() => window.open(startupConfig?.helpAndFaqURL, '_blank')}

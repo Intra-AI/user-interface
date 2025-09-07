@@ -316,63 +316,22 @@ export const roleDefaults = defaultRolesSchema.parse({
   [SystemRoles.MANAGER]: {
     name: SystemRoles.MANAGER,
     permissions: {
-      [PermissionTypes.PROMPTS]: {
-        [Permissions.USE]: true,
-        [Permissions.CREATE]: true,
-      },
-      [PermissionTypes.BOOKMARKS]: {
-        [Permissions.USE]: true,
-      },
-      [PermissionTypes.MEMORIES]: {
-        [Permissions.USE]: false,
-        [Permissions.CREATE]: false,
-        [Permissions.UPDATE]: false,
-        [Permissions.READ]: false,
-        [Permissions.OPT_OUT]: false,
-      },
-      [PermissionTypes.AGENTS]: {
-        [Permissions.SHARED_GLOBAL]: true,
-        [Permissions.USE]: true,
-        [Permissions.CREATE]: true,
-      },
-      [PermissionTypes.MULTI_CONVO]: {
-        [Permissions.USE]: true,
-      },
-      [PermissionTypes.TEMPORARY_CHAT]: {
-        [Permissions.USE]: true,
-      },
-      [PermissionTypes.RUN_CODE]: {
-        [Permissions.USE]: true,
-      },
-      [PermissionTypes.WEB_SEARCH]: {
-        [Permissions.USE]: true,
-      },
-      [PermissionTypes.PEOPLE_PICKER]: {
-        [Permissions.VIEW_USERS]: true,
-        [Permissions.VIEW_GROUPS]: false,
-        [Permissions.VIEW_ROLES]: false,
-      },
-      [PermissionTypes.MARKETPLACE]: {
-        [Permissions.USE]: true,
-      },
-      [PermissionTypes.FILE_SEARCH]: {
-        [Permissions.USE]: true,
-      },
-      [PermissionTypes.FILE_CITATIONS]: {
-        [Permissions.USE]: true,
-      },
-      [PermissionTypes.FILE_UPLOAD]: {
-        [Permissions.USE]: false,
-      },
-      [PermissionTypes.HELP_FAQ]: {
-        [Permissions.USE]: false,
-      },
-      [PermissionTypes.PARAMETERS]: {
-        [Permissions.USE]: false,
-      },
-      [PermissionTypes.SIDE_PANEL]: {
-        [Permissions.USE]: true,
-      },
+      [PermissionTypes.PROMPTS]: {},
+      [PermissionTypes.BOOKMARKS]: {},
+      [PermissionTypes.MEMORIES]: {},
+      [PermissionTypes.AGENTS]: {},
+      [PermissionTypes.MULTI_CONVO]: {},
+      [PermissionTypes.TEMPORARY_CHAT]: {},
+      [PermissionTypes.RUN_CODE]: {},
+      [PermissionTypes.WEB_SEARCH]: {},
+      [PermissionTypes.PEOPLE_PICKER]: {},
+      [PermissionTypes.MARKETPLACE]: {},
+      [PermissionTypes.FILE_SEARCH]: {},
+      [PermissionTypes.FILE_CITATIONS]: {},
+      [PermissionTypes.FILE_UPLOAD]: {},
+      [PermissionTypes.HELP_FAQ]: {},
+      [PermissionTypes.PARAMETERS]: {},
+      [PermissionTypes.SIDE_PANEL]: {},
     },
   },
   [SystemRoles.USER]: {
@@ -386,14 +345,8 @@ export const roleDefaults = defaultRolesSchema.parse({
       [PermissionTypes.TEMPORARY_CHAT]: {},
       [PermissionTypes.RUN_CODE]: {},
       [PermissionTypes.WEB_SEARCH]: {},
-      [PermissionTypes.PEOPLE_PICKER]: {
-        [Permissions.VIEW_USERS]: false,
-        [Permissions.VIEW_GROUPS]: false,
-        [Permissions.VIEW_ROLES]: false,
-      },
-      [PermissionTypes.MARKETPLACE]: {
-        [Permissions.USE]: false,
-      },
+      [PermissionTypes.PEOPLE_PICKER]: {},
+      [PermissionTypes.MARKETPLACE]: {},
       [PermissionTypes.FILE_SEARCH]: {},
       [PermissionTypes.FILE_CITATIONS]: {},
       [PermissionTypes.MCP_SERVERS]: {},

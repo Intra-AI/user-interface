@@ -57,6 +57,17 @@ const rolePermissionsSchema = new Schema(
       [Permissions.USE]: { type: Boolean },
       [Permissions.CREATE]: { type: Boolean },
       [Permissions.SHARE]: { type: Boolean },
+    [PermissionTypes.FILE_UPLOAD]: {
+      [Permissions.USE]: { type: Boolean },
+    },
+    [PermissionTypes.HELP_FAQ]: {
+      [Permissions.USE]: { type: Boolean },
+    },
+    [PermissionTypes.PARAMETERS]: {
+      [Permissions.USE]: { type: Boolean },
+    },
+    [PermissionTypes.SIDE_PANEL]: {
+      [Permissions.USE]: { type: Boolean },
     },
   },
   { _id: false },
