@@ -53,6 +53,18 @@ const rolePermissionsSchema = new Schema(
     [PermissionTypes.FILE_CITATIONS]: {
       [Permissions.USE]: { type: Boolean },
     },
+    [PermissionTypes.FILE_UPLOAD]: {
+      [Permissions.USE]: { type: Boolean },
+    },
+    [PermissionTypes.HELP_FAQ]: {
+      [Permissions.USE]: { type: Boolean },
+    },
+    [PermissionTypes.PARAMETERS]: {
+      [Permissions.USE]: { type: Boolean },
+    },
+    [PermissionTypes.SIDE_PANEL]: {
+      [Permissions.USE]: { type: Boolean },
+    },
   },
   { _id: false },
 );

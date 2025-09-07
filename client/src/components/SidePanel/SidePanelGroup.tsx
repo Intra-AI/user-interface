@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect, useMemo, memo } from 'react';
 import throttle from 'lodash/throttle';
 import { useRecoilValue } from 'recoil';
-import { getConfigDefaults } from 'librechat-data-provider';
+import { getConfigDefaults, PermissionTypes, Permissions } from 'librechat-data-provider';
 import {
   ResizableHandleAlt,
   ResizablePanel,
@@ -10,6 +10,7 @@ import {
 } from '@librechat/client';
 import type { ImperativePanelHandle } from 'react-resizable-panels';
 import { useGetStartupConfig } from '~/data-provider';
+import { useHasAccess } from '~/hooks';
 import { normalizeLayout } from '~/utils';
 import SidePanel from './SidePanel';
 import store from '~/store';
@@ -40,6 +41,11 @@ const SidePanelGroup = memo(
       () => startupConfig?.interface ?? defaultInterface,
       [startupConfig],
     );
+
+    const hasSidePanelAccess = useHasAccess({
+      permissionType: PermissionTypes.SIDE_PANEL,
+      permission: Permissions.USE,
+    });
 
     const panelRef = useRef<ImperativePanelHandle>(null);
     const [minSize, setMinSize] = useState(defaultMinSize);
@@ -132,7 +138,7 @@ const SidePanelGroup = memo(
               </ResizablePanel>
             </>
           )}
-          {!hideSidePanel && interfaceConfig.sidePanel === true && (
+          {!hideSidePanel && interfaceConfig.sidePanel === true && hasSidePanelAccess && (
             <SidePanel
               panelRef={panelRef}
               minSize={minSize}
