@@ -25,6 +25,11 @@ function AccountSettings() {
     permission: Permissions.USE,
   });
 
+  const hasFileManagerAccess = useHasAccess({
+    permissionType: PermissionTypes.FILE_UPLOAD,
+    permission: Permissions.USE,
+  });
+
   return (
     <Select.SelectProvider>
       <Select.Select
@@ -65,6 +70,7 @@ function AccountSettings() {
             <DropdownMenuSeparator />
           </>
         )}
+        {hasFileManagerAccess && (
         <Select.SelectItem
           value=""
           onClick={() => setShowFiles(true)}
@@ -73,6 +79,7 @@ function AccountSettings() {
           <FileText className="icon-md" aria-hidden="true" />
           {localize('com_nav_my_files')}
         </Select.SelectItem>
+        )}
         {startupConfig?.helpAndFaqURL !== '/' && hasHelpFaqAccess && (
           <Select.SelectItem
             value=""
