@@ -69,6 +69,12 @@ export default function useSideNavLinks({
     permission: Permissions.CREATE,
   });
   const { availableMCPServers } = useMCPServerManager();
+  const hasAccessToAttachFiles = useHasAccess({
+    permissionType: PermissionTypes.FILE_UPLOAD,
+    permission: Permissions.USE,
+  });
+
+  const { data: startupConfig } = useGetStartupConfig();
 
   const Links = useMemo(() => {
     const links: NavLink[] = [];
@@ -141,13 +147,15 @@ export default function useSideNavLinks({
       });
     }
 
-    links.push({
-      title: 'com_sidepanel_attach_files',
-      label: '',
-      icon: AttachmentIcon,
-      id: 'files',
-      Component: FilesPanel,
-    });
+    if (hasAccessToAttachFiles) {
+      links.push({
+        title: 'com_sidepanel_attach_files',
+        label: '',
+        icon: AttachmentIcon,
+        id: 'files',
+        Component: FilesPanel,
+      });
+    }
 
     if (hasAccessToBookmarks) {
       links.push({

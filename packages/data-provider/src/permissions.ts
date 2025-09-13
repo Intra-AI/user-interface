@@ -206,6 +206,5 @@ export const permissionsSchema = z.object({
   [PermissionTypes.MCP_SERVERS]: mcpServersPermissionsSchema,
   [PermissionTypes.FILE_UPLOAD]: fileUploadPermissionsSchema,
   [PermissionTypes.HELP_FAQ]: helpFaqPermissionsSchema,
-  [PermissionTypes.PARAMETERS]: parametersPermissionsSchema,
   [PermissionTypes.SIDE_PANEL]: sidePanelPermissionsSchema,
 });
