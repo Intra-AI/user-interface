@@ -196,6 +196,5 @@ export const permissionsSchema = z.object({
   [PermissionTypes.FILE_CITATIONS]: fileCitationsPermissionsSchema,
   [PermissionTypes.FILE_UPLOAD]: fileUploadPermissionsSchema,
   [PermissionTypes.HELP_FAQ]: helpFaqPermissionsSchema,
-  [PermissionTypes.PARAMETERS]: parametersPermissionsSchema,
   [PermissionTypes.SIDE_PANEL]: sidePanelPermissionsSchema,
 });

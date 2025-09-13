@@ -61,6 +61,11 @@ export default function useSideNavLinks({
     permissionType: PermissionTypes.AGENTS,
     permission: Permissions.CREATE,
   });
+  const hasAccessToAttachFiles = useHasAccess({
+    permissionType: PermissionTypes.FILE_UPLOAD,
+    permission: Permissions.USE,
+  });
+
   const { data: startupConfig } = useGetStartupConfig();
 
   const Links = useMemo(() => {
@@ -134,13 +139,15 @@ export default function useSideNavLinks({
       });
     }
 
-    links.push({
-      title: 'com_sidepanel_attach_files',
-      label: '',
-      icon: AttachmentIcon,
-      id: 'files',
-      Component: FilesPanel,
-    });
+    if (hasAccessToAttachFiles) {
+      links.push({
+        title: 'com_sidepanel_attach_files',
+        label: '',
+        icon: AttachmentIcon,
+        id: 'files',
+        Component: FilesPanel,
+      });
+    }
 
     if (hasAccessToBookmarks) {
       links.push({

@@ -103,9 +103,6 @@ const defaultRolesSchema = z.object({
       [PermissionTypes.HELP_FAQ]: helpFaqPermissionsSchema.extend({
         [Permissions.USE]: z.boolean().default(true),
       }),
-      [PermissionTypes.PARAMETERS]: parametersPermissionsSchema.extend({
-        [Permissions.USE]: z.boolean().default(true),
-      }),
       [PermissionTypes.SIDE_PANEL]: sidePanelPermissionsSchema.extend({
         [Permissions.USE]: z.boolean().default(true),
       }),
@@ -167,9 +164,6 @@ const defaultRolesSchema = z.object({
       [PermissionTypes.HELP_FAQ]: helpFaqPermissionsSchema.extend({
         [Permissions.USE]: z.boolean().default(false),
       }),
-      [PermissionTypes.PARAMETERS]: parametersPermissionsSchema.extend({
-        [Permissions.USE]: z.boolean().default(false),
-      }),
       [PermissionTypes.SIDE_PANEL]: sidePanelPermissionsSchema.extend({
         [Permissions.USE]: z.boolean().default(true),
       }),
@@ -180,8 +174,8 @@ const defaultRolesSchema = z.object({
     permissions: permissionsSchema.extend({
       [PermissionTypes.PROMPTS]: promptPermissionsSchema.extend({
         [Permissions.SHARED_GLOBAL]: z.boolean().default(false),
-        [Permissions.USE]: z.boolean().default(true),
-        [Permissions.CREATE]: z.boolean().default(true),
+        [Permissions.USE]: z.boolean().default(false),
+        [Permissions.CREATE]: z.boolean().default(false),
       }),
       [PermissionTypes.BOOKMARKS]: bookmarkPermissionsSchema.extend({
         [Permissions.USE]: z.boolean().default(true),
@@ -194,12 +188,12 @@ const defaultRolesSchema = z.object({
         [Permissions.OPT_OUT]: z.boolean().default(false),
       }),
       [PermissionTypes.AGENTS]: agentPermissionsSchema.extend({
-        [Permissions.SHARED_GLOBAL]: z.boolean().default(false),
+        [Permissions.SHARED_GLOBAL]: z.boolean().default(true),
         [Permissions.USE]: z.boolean().default(true),
-        [Permissions.CREATE]: z.boolean().default(true),
+        [Permissions.CREATE]: z.boolean().default(false),
       }),
       [PermissionTypes.MULTI_CONVO]: multiConvoPermissionsSchema.extend({
-        [Permissions.USE]: z.boolean().default(true),
+        [Permissions.USE]: z.boolean().default(false),
       }),
       [PermissionTypes.TEMPORARY_CHAT]: temporaryChatPermissionsSchema.extend({
         [Permissions.USE]: z.boolean().default(true),
@@ -230,9 +224,6 @@ const defaultRolesSchema = z.object({
       [PermissionTypes.HELP_FAQ]: helpFaqPermissionsSchema.extend({
         [Permissions.USE]: z.boolean().default(false),
       }),
-      [PermissionTypes.PARAMETERS]: parametersPermissionsSchema.extend({
-        [Permissions.USE]: z.boolean().default(false),
-      }),
       [PermissionTypes.SIDE_PANEL]: sidePanelPermissionsSchema.extend({
         [Permissions.USE]: z.boolean().default(false),
       }),
@@ -258,7 +249,6 @@ export const roleDefaults = defaultRolesSchema.parse({
       [PermissionTypes.FILE_CITATIONS]: {},
       [PermissionTypes.FILE_UPLOAD]: {},
       [PermissionTypes.HELP_FAQ]: {},
-      [PermissionTypes.PARAMETERS]: {},
       [PermissionTypes.SIDE_PANEL]: {},
     },
   },
@@ -279,7 +269,6 @@ export const roleDefaults = defaultRolesSchema.parse({
       [PermissionTypes.FILE_CITATIONS]: {},
       [PermissionTypes.FILE_UPLOAD]: {},
       [PermissionTypes.HELP_FAQ]: {},
-      [PermissionTypes.PARAMETERS]: {},
       [PermissionTypes.SIDE_PANEL]: {},
     },
   },
@@ -300,7 +289,6 @@ export const roleDefaults = defaultRolesSchema.parse({
       [PermissionTypes.FILE_CITATIONS]: {},
       [PermissionTypes.FILE_UPLOAD]: {},
       [PermissionTypes.HELP_FAQ]: {},
-      [PermissionTypes.PARAMETERS]: {},
       [PermissionTypes.SIDE_PANEL]: {},
     },
   },
