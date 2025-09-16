@@ -15,6 +15,8 @@ const {
  */
 async function loadDefaultModels(req) {
   try {
+    // ALL DEFAULT MODELS ARE DISABLED - Only custom models from librechat.yaml are allowed
+    /*
     const [openAI, anthropic, azureOpenAI, assistants, azureAssistants, google, bedrock] =
       await Promise.all([
         getOpenAIModels({ user: req.user.id }).catch((error) => {
@@ -46,19 +48,14 @@ async function loadDefaultModels(req) {
           return [];
         }),
       ]);
+    */
 
-    return {
-      [EModelEndpoint.openAI]: openAI,
-      [EModelEndpoint.google]: google,
-      [EModelEndpoint.anthropic]: anthropic,
-      [EModelEndpoint.azureOpenAI]: azureOpenAI,
-      [EModelEndpoint.assistants]: assistants,
-      [EModelEndpoint.azureAssistants]: azureAssistants,
-      [EModelEndpoint.bedrock]: bedrock,
-    };
+    // Return empty object - no default models allowed
+    return {};
   } catch (error) {
-    logger.error('Error fetching default models:', error);
-    throw new Error(`Failed to load default models: ${error.message}`);
+    logger.error('Error loading default models (all disabled):', error);
+    // Return empty object even on error - no default models allowed
+    return {};
   }
 }
 

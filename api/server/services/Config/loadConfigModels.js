@@ -17,6 +17,9 @@ async function loadConfigModels(req) {
     return {};
   }
   const modelsConfig = {};
+  
+  // ALL DEFAULT MODELS ARE DISABLED - Only process custom endpoints from librechat.yaml
+  /*
   const azureConfig = appConfig.endpoints?.[EModelEndpoint.azureOpenAI];
   const { modelNames } = azureConfig ?? {};
 
@@ -27,6 +30,7 @@ async function loadConfigModels(req) {
   if (azureConfig?.assistants && azureConfig.assistantModels) {
     modelsConfig[EModelEndpoint.azureAssistants] = azureConfig.assistantModels;
   }
+  */
 
   if (!Array.isArray(appConfig.endpoints?.[EModelEndpoint.custom])) {
     return modelsConfig;
