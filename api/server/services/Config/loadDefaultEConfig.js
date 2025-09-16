@@ -8,6 +8,9 @@ const { config } = require('./EndpointService');
  * @returns {Promise<Object.<string, EndpointWithOrder>>} An object whose keys are endpoint names and values are objects that contain the endpoint configuration and an order.
  */
 async function loadDefaultEndpointsConfig(appConfig) {
+  // MOST DEFAULT ENDPOINTS ARE DISABLED - Only Agents and custom endpoints from librechat.yaml are allowed
+  
+  /*
   const { google, gptPlugins } = await loadAsyncEndpoints(appConfig);
   const { assistants, azureAssistants, azureOpenAI, chatGPTBrowser } = config;
 
@@ -15,7 +18,6 @@ async function loadDefaultEndpointsConfig(appConfig) {
 
   const endpointConfig = {
     [EModelEndpoint.openAI]: config[EModelEndpoint.openAI],
-    [EModelEndpoint.agents]: config[EModelEndpoint.agents],
     [EModelEndpoint.assistants]: assistants,
     [EModelEndpoint.azureAssistants]: azureAssistants,
     [EModelEndpoint.azureOpenAI]: azureOpenAI,
@@ -24,6 +26,13 @@ async function loadDefaultEndpointsConfig(appConfig) {
     [EModelEndpoint.gptPlugins]: gptPlugins,
     [EModelEndpoint.anthropic]: config[EModelEndpoint.anthropic],
     [EModelEndpoint.bedrock]: config[EModelEndpoint.bedrock],
+  };
+  */
+
+  // Only enable Agents - all other default endpoints are disabled
+  const enabledEndpoints = getEnabledEndpoints();
+  const endpointConfig = {
+    [EModelEndpoint.agents]: config[EModelEndpoint.agents], // Keep Agents enabled
   };
 
   const orderedAndFilteredEndpoints = enabledEndpoints.reduce((config, key, index) => {

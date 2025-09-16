@@ -11,16 +11,19 @@ const { openAIApiKey, azureOpenAIApiKey, useAzurePlugins, userProvidedOpenAI, go
  * @param {AppConfig} [appConfig] - The app configuration object
  */
 async function loadAsyncEndpoints(appConfig) {
+  // ALL DEFAULT ENDPOINTS ARE DISABLED - Only custom endpoints from librechat.yaml are allowed
+  
+  /*
   let serviceKey, googleUserProvides;
 
-  /** Check if GOOGLE_KEY is provided at all(including 'user_provided') */
+  // Check if GOOGLE_KEY is provided at all(including 'user_provided')
   const isGoogleKeyProvided = googleKey && googleKey.trim() !== '';
 
   if (isGoogleKeyProvided) {
-    /** If GOOGLE_KEY is provided, check if it's user_provided */
+    // If GOOGLE_KEY is provided, check if it's user_provided
     googleUserProvides = isUserProvided(googleKey);
   } else {
-    /** Only attempt to load service key if GOOGLE_KEY is not provided */
+    // Only attempt to load service key if GOOGLE_KEY is not provided
     const serviceKeyPath =
       process.env.GOOGLE_SERVICE_KEY_FILE || path.join(__dirname, '../../..', 'data', 'auth.json');
 
@@ -47,6 +50,11 @@ async function loadAsyncEndpoints(appConfig) {
           azure: useAzurePlugins || useAzure,
         }
       : false;
+  */
+
+  // Return empty object - no default endpoints allowed
+  const google = false;
+  const gptPlugins = false;
 
   return { google, gptPlugins };
 }
