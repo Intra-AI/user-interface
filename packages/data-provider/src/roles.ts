@@ -112,8 +112,8 @@ const defaultRolesSchema = z.object({
     name: z.literal(SystemRoles.MANAGER),
     permissions: permissionsSchema.extend({
       [PermissionTypes.PROMPTS]: promptPermissionsSchema.extend({
-        [Permissions.USE]: z.boolean().default(true),
-        [Permissions.CREATE]: z.boolean().default(true),
+        [Permissions.USE]: z.boolean().default(false),
+        [Permissions.CREATE]: z.boolean().default(false),
         // [Permissions.SHARE]: z.boolean().default(true),
       }),
       [PermissionTypes.BOOKMARKS]: bookmarkPermissionsSchema.extend({
@@ -133,24 +133,24 @@ const defaultRolesSchema = z.object({
         // [Permissions.SHARE]: z.boolean().default(true),
       }),
       [PermissionTypes.MULTI_CONVO]: multiConvoPermissionsSchema.extend({
-        [Permissions.USE]: z.boolean().default(true),
+        [Permissions.USE]: z.boolean().default(false),
       }),
       [PermissionTypes.TEMPORARY_CHAT]: temporaryChatPermissionsSchema.extend({
         [Permissions.USE]: z.boolean().default(true),
       }),
       [PermissionTypes.RUN_CODE]: runCodePermissionsSchema.extend({
-        [Permissions.USE]: z.boolean().default(true),
+        [Permissions.USE]: z.boolean().default(false),
       }),
       [PermissionTypes.WEB_SEARCH]: webSearchPermissionsSchema.extend({
         [Permissions.USE]: z.boolean().default(true),
       }),
       [PermissionTypes.PEOPLE_PICKER]: peoplePickerPermissionsSchema.extend({
-        [Permissions.VIEW_USERS]: z.boolean().default(true),
+        [Permissions.VIEW_USERS]: z.boolean().default(false),
         [Permissions.VIEW_GROUPS]: z.boolean().default(false),
         [Permissions.VIEW_ROLES]: z.boolean().default(false),
       }),
       [PermissionTypes.MARKETPLACE]: z.object({
-        [Permissions.USE]: z.boolean().default(true),
+        [Permissions.USE]: z.boolean().default(false),
       }),
       [PermissionTypes.FILE_SEARCH]: fileSearchPermissionsSchema.extend({
         [Permissions.USE]: z.boolean().default(true),
@@ -159,7 +159,7 @@ const defaultRolesSchema = z.object({
         [Permissions.USE]: z.boolean().default(true),
       }),
       [PermissionTypes.FILE_UPLOAD]: fileUploadPermissionsSchema.extend({
-        [Permissions.USE]: z.boolean().default(false),
+        [Permissions.USE]: z.boolean().default(true),
       }),
       [PermissionTypes.HELP_FAQ]: helpFaqPermissionsSchema.extend({
         [Permissions.USE]: z.boolean().default(false),
@@ -219,7 +219,7 @@ const defaultRolesSchema = z.object({
         [Permissions.USE]: z.boolean().default(true),
       }),
       [PermissionTypes.FILE_UPLOAD]: fileUploadPermissionsSchema.extend({
-        [Permissions.USE]: z.boolean().default(false),
+        [Permissions.USE]: z.boolean().default(true),
       }),
       [PermissionTypes.HELP_FAQ]: helpFaqPermissionsSchema.extend({
         [Permissions.USE]: z.boolean().default(false),
