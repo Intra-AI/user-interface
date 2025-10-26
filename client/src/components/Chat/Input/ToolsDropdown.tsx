@@ -274,7 +274,7 @@ const ToolsDropdown = ({ disabled }: ToolsDropdownProps) => {
     });
   }
 
-  if (artifactsEnabled) {
+  if (artifactsEnabled && false) {
     dropdownItems.push({
       hideOnClick: false,
       render: (props) => (

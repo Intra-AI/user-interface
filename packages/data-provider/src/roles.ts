@@ -147,7 +147,7 @@ const defaultRolesSchema = z.object({
         [Permissions.USE]: z.boolean().default(false),
       }),
       [PermissionTypes.WEB_SEARCH]: webSearchPermissionsSchema.extend({
-        [Permissions.USE]: z.boolean().default(true),
+        [Permissions.USE]: z.boolean().default(false),
       }),
       [PermissionTypes.PEOPLE_PICKER]: peoplePickerPermissionsSchema.extend({
         [Permissions.VIEW_USERS]: z.boolean().default(false),
@@ -158,13 +158,13 @@ const defaultRolesSchema = z.object({
         [Permissions.USE]: z.boolean().default(false),
       }),
       [PermissionTypes.FILE_SEARCH]: fileSearchPermissionsSchema.extend({
-        [Permissions.USE]: z.boolean().default(true),
+        [Permissions.USE]: z.boolean().default(false),
       }),
       [PermissionTypes.FILE_CITATIONS]: fileCitationsPermissionsSchema.extend({
         [Permissions.USE]: z.boolean().default(true),
       }),
       [PermissionTypes.FILE_UPLOAD]: fileUploadPermissionsSchema.extend({
-        [Permissions.USE]: z.boolean().default(true),
+        [Permissions.USE]: z.boolean().default(false),
       }),
       [PermissionTypes.HELP_FAQ]: helpFaqPermissionsSchema.extend({
         [Permissions.USE]: z.boolean().default(false),
@@ -204,10 +204,10 @@ const defaultRolesSchema = z.object({
         [Permissions.USE]: z.boolean().default(true),
       }),
       [PermissionTypes.RUN_CODE]: runCodePermissionsSchema.extend({
-        [Permissions.USE]: z.boolean().default(true),
+        [Permissions.USE]: z.boolean().default(false),
       }),
       [PermissionTypes.WEB_SEARCH]: webSearchPermissionsSchema.extend({
-        [Permissions.USE]: z.boolean().default(true),
+        [Permissions.USE]: z.boolean().default(false),
       }),
       [PermissionTypes.PEOPLE_PICKER]: peoplePickerPermissionsSchema.extend({
         [Permissions.VIEW_USERS]: z.boolean().default(false),
@@ -218,13 +218,13 @@ const defaultRolesSchema = z.object({
         [Permissions.USE]: z.boolean().default(false),
       }),
       [PermissionTypes.FILE_SEARCH]: fileSearchPermissionsSchema.extend({
-        [Permissions.USE]: z.boolean().default(true),
+        [Permissions.USE]: z.boolean().default(false),
       }),
       [PermissionTypes.FILE_CITATIONS]: fileCitationsPermissionsSchema.extend({
         [Permissions.USE]: z.boolean().default(true),
       }),
       [PermissionTypes.FILE_UPLOAD]: fileUploadPermissionsSchema.extend({
-        [Permissions.USE]: z.boolean().default(true),
+        [Permissions.USE]: z.boolean().default(false),
       }),
       [PermissionTypes.HELP_FAQ]: helpFaqPermissionsSchema.extend({
         [Permissions.USE]: z.boolean().default(false),

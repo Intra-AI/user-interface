@@ -74,7 +74,7 @@ function Artifacts() {
     return null;
   }
 
-  return (
+  return false && (
     <div className="flex">
       <CheckboxButton
         className={cn('max-w-fit', isEnabled && 'rounded-r-none border-r-0')}
