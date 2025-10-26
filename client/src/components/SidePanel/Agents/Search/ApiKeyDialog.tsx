@@ -83,6 +83,10 @@ export default function ApiKeyDialog({
       key: RerankerTypes.JINA,
       label: localize('com_ui_web_search_reranker_jina'),
       inputs: {
+        jinaApiUrl: {
+          placeholder: localize('com_ui_web_search_jina_url'),
+          type: 'text' as const,
+        },
         jinaApiKey: {
           placeholder: localize('com_ui_web_search_jina_key'),
           type: 'password' as const,
