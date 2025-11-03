@@ -42,7 +42,7 @@ const useFileHandling = (params?: UseFileHandling) => {
   const [errors, setErrors] = useState<string[]>([]);
   const abortControllerRef = useRef<AbortController | null>(null);
   const { startUploadTimer, clearUploadTimer } = useDelayedUploadToast();
-  const { files, setFiles, setFilesLoading, conversation } = useChatContext();
+  const { files, setFiles, setFilesLoading, conversation, setConversation } = useChatContext();
   const setEphemeralAgent = useSetRecoilState(
     ephemeralAgentByConvoId(conversation?.conversationId ?? Constants.NEW_CONVO),
   );
@@ -58,6 +58,10 @@ const useFileHandling = (params?: UseFileHandling) => {
   const { data: fileConfig = null } = useGetFileConfig({
     select: (data) => mergeFileConfig(data),
   });
+
+  // Get vision model configuration from environment or use defaults
+  const visionModel = import.meta.env.VITE_VISION_MODEL ?? 'mistralai/Mistral-Small-24B-Instruct';
+  const visionModelSpec = import.meta.env.VITE_VISION_MODEL_SPEC ?? 'mistral-model';
 
   const endpoint = useMemo(
     () =>
@@ -244,6 +248,32 @@ const useFileHandling = (params?: UseFileHandling) => {
   const loadImage = (extendedFile: ExtendedFile, preview: string) => {
     const img = new Image();
     img.onload = async () => {
+      // Check if current model is Llama (cannot process images)
+      const currentModel = conversation?.model ?? '';
+      const isLlamaModel = currentModel.includes('llama') || currentModel.includes('Llama');
+      
+      // If Llama model is selected, switch to vision-capable model automatically
+      if (isLlamaModel && setConversation && conversation) {
+        // Create updated conversation with vision-capable model and spec
+        const updatedConversation = {
+          ...conversation,
+          model: visionModel,
+          spec: visionModelSpec,
+          // Reset these fields to ensure proper UI update
+          modelLabel: null,
+          iconURL: null,
+        };
+        
+        setConversation(updatedConversation);
+        
+        // Show notification in German
+        showToast({
+          message: 'Modell wurde zu Mistral gewechselt, da Llama keine Bilder verarbeiten kann',
+          status: 'info',
+          duration: 4000,
+        });
+      }
+      
       extendedFile.width = img.width;
       extendedFile.height = img.height;
       extendedFile = {
