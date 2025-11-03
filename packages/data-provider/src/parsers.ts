@@ -258,6 +258,8 @@ export const getResponseSender = (endpointOption: Partial<t.TEndpointOption>): s
     } else if (chatGptLabel) {
       // @deprecated - prefer modelLabel
       return chatGptLabel;
+    } else if (modelDisplayLabel) {
+      return modelDisplayLabel;
     } else if (model && extractOmniVersion(model)) {
       return extractOmniVersion(model);
     } else if (model && (model.includes('mistral') || model.includes('codestral'))) {
@@ -267,8 +269,6 @@ export const getResponseSender = (endpointOption: Partial<t.TEndpointOption>): s
     } else if (model && model.includes('gpt-')) {
       const gptVersion = extractGPTVersion(model);
       return gptVersion || 'GPT';
-    } else if (modelDisplayLabel) {
-      return modelDisplayLabel;
     }
 
     return 'AI';
