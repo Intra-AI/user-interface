@@ -62,6 +62,53 @@ const deleteNullOrEmptyConversations = async () => {
 };
 
 /**
+ * Deletes conversations older than the specified number of minutes.
+ * @param {number} minutesOld - The age threshold in minutes. Conversations older than this will be deleted.
+ * @returns {Promise<{conversations: Object, messages: Object}>} An object containing the deletion results.
+ */
+const deleteOldConversations = async (minutesOld) => {
+  try {
+    const cutoffDate = new Date(Date.now() - minutesOld * 60 * 1000);
+    
+    const filter = {
+      createdAt: { $lt: cutoffDate },
+    };
+
+    // Find conversations to delete
+    const conversations = await Conversation.find(filter).select('conversationId');
+    const conversationIds = conversations.map((c) => c.conversationId);
+
+    if (conversationIds.length === 0) {
+      logger.debug(`[deleteOldConversations] No conversations older than ${minutesOld} minutes found`);
+      return {
+        conversations: { deletedCount: 0 },
+        messages: { deletedCount: 0 },
+      };
+    }
+
+    // Delete conversations
+    const result = await Conversation.deleteMany(filter);
+
+    // Delete associated messages
+    const messageDeleteResult = await deleteMessages({
+      conversationId: { $in: conversationIds },
+    });
+
+    logger.info(
+      `[deleteOldConversations] Deleted ${result.deletedCount} conversations and ${messageDeleteResult.deletedCount} messages older than ${minutesOld} minutes`,
+    );
+
+    return {
+      conversations: result,
+      messages: messageDeleteResult,
+    };
+  } catch (error) {
+    logger.error('[deleteOldConversations] Error deleting old conversations', error);
+    throw new Error('Error deleting old conversations');
+  }
+};
+
+/**
  * Searches for a conversation by conversationId and returns associated file ids.
  * @param {string} conversationId - The conversation's ID.
  * @returns {Promise<string[] | null>}
@@ -79,6 +126,7 @@ module.exports = {
   getConvoFiles,
   searchConversation,
   deleteNullOrEmptyConversations,
+  deleteOldConversations,
   /**
    * Saves a conversation to the database.
    * @param {Object} req - The request object.
