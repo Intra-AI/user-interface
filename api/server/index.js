@@ -25,6 +25,7 @@ const createValidateImageRequest = require('./middleware/validateImageRequest');
 const { jwtLogin, ldapLogin, passportLogin } = require('~/strategies');
 const { updateInterfacePermissions } = require('~/models/interface');
 const { checkMigrations } = require('./services/start/migration');
+const { startScheduledCleanup } = require('./services/cleanup');
 const initializeMCPs = require('./services/initializeMCPs');
 const configureSocialLogins = require('./socialLogins');
 const { getAppConfig } = require('./services/Config');
@@ -199,6 +200,11 @@ const startServer = async () => {
     const streamServices = createStreamServices();
     GenerationJobManager.configure(streamServices);
     GenerationJobManager.initialize();
+    initializeMCPs().then(() => checkMigrations());
+    
+    // Start scheduled cleanup of old conversations
+    // Run once per day and delete conversations older than 90 days
+    startScheduledCleanup(1440, 129600);
   });
 };
 
