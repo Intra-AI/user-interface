@@ -8,6 +8,10 @@ const {
 } = require('@librechat/data-schemas');
 const { ErrorTypes, SystemRoles, errorsToString } = require('librechat-data-provider');
 const { isEnabled, checkEmailConfig, isEmailDomainAllowed, math } = require('@librechat/api');
+const { logger } = require('@librechat/data-schemas');
+const { isEnabled, checkEmailConfig } = require('@librechat/api');
+const { SystemRoles, errorsToString } = require('librechat-data-provider');
+const { createAuditLog } = require('~/models/AuditLog');
 const {
   findUser,
   findToken,
@@ -234,6 +238,20 @@ const registerUser = async (user, additionalData = {}) => {
 
     const newUser = await createUser(newUserData, appConfig.balance, disableTTL, true);
     newUserId = newUser._id;
+    
+    // DSGVO Audit Log: User Registration
+    await createAuditLog({
+      userId: newUserId,
+      action: 'USER_REGISTERED',
+      details: {
+        email,
+        name,
+        role: userRole,
+        provider: 'local',
+      },
+      email,
+    });
+    
     if (emailEnabled && !newUser.emailVerified) {
       await sendVerificationEmail({
         _id: newUserId,
@@ -350,6 +368,18 @@ const resetPassword = async (userId, token, password) => {
 
   const hash = bcrypt.hashSync(password, 10);
   const user = await updateUser(userId, { password: hash });
+
+  // DSGVO Audit Log: Password Changed
+  await createAuditLog({
+    userId,
+    action: 'PERSONAL_DATA_CHANGED',
+    details: {
+      changedFields: ['password'],
+      password: '[REDACTED]',
+      method: 'password_reset',
+    },
+    email: user.email,
+  });
 
   if (checkEmailConfig()) {
     await sendEmail({

@@ -3,6 +3,9 @@ const { isEnabled } = require('@librechat/api');
 const { logger } = require('@librechat/data-schemas');
 const { logoutUser } = require('~/server/services/AuthService');
 const { getOpenIdConfig } = require('~/strategies');
+const { createAuditLog } = require('~/models/AuditLog');
+const { isEnabled } = require('~/server/utils');
+const { logger } = require('~/config');
 
 const logoutController = async (req, res) => {
   const refreshToken = req.headers.cookie ? cookies.parse(req.headers.cookie).refreshToken : null;
@@ -11,6 +14,20 @@ const logoutController = async (req, res) => {
     const { status, message } = logout;
     res.clearCookie('refreshToken');
     res.clearCookie('token_provider');
+    
+    // DSGVO Audit Log: Logout
+    if (req.user) {
+      await createAuditLog({
+        userId: req.user._id,
+        action: 'USER_LOGOUT',
+        details: {
+          email: req.user.email,
+        },
+        req,
+        email: req.user.email,
+      });
+    }
+    
     const response = { message };
     if (
       req.user.openidId != null &&

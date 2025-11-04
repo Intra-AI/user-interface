@@ -21,6 +21,8 @@ export * from './pluginAuth';
 export * from './memory';
 /* Prompts */
 export * from './prompts';
+/* Audit Logs */
+export * from './auditLog';
 /* Access Control */
 export * from './accessRole';
 export * from './aclEntry';
