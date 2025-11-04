@@ -168,7 +168,7 @@ const startServer = async () => {
     
     // Start scheduled cleanup of old conversations
     // Run once per day and delete conversations older than 90 days
-    startScheduledCleanup(1440, 129600);
+    startScheduledCleanup(1440, 129600, 3);
   });
 };
 

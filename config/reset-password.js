@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const { User } = require('@librechat/data-schemas').createModels(mongoose);
 require('module-alias')({ base: path.resolve(__dirname, '..', 'api') });
 const connect = require('./connect');
+const { createAuditLog } = require('../api/models/AuditLog');
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -55,7 +56,20 @@ const resetPassword = async () => {
       },
     );
 
+    // DSGVO: Log password change
+    await createAuditLog({
+      userId: user._id,
+      action: 'PERSONAL_DATA_CHANGED',
+      details: {
+        changedFields: ['password'],
+        reason: 'Password reset via CLI',
+      },
+      email: user.email,
+      req: null, // CLI hat keine Request-Daten
+    });
+
     console.log('Password successfully reset!');
+    console.log('Audit log created for GDPR compliance.');
     process.exit(0);
   } catch (err) {
     console.error('Error resetting password:', err);

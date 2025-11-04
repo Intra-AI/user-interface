@@ -1,5 +1,6 @@
 const { logger } = require('@librechat/data-schemas');
 const { webSearchKeys, extractWebSearchEnvVars, normalizeHttpError } = require('@librechat/api');
+const { createAuditLog } = require('~/models/AuditLog');
 const {
   getFiles,
   updateUser,
@@ -69,6 +70,19 @@ const acceptTermsController = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
+    
+    // DSGVO Audit Log: Terms Acceptance (Art. 7 DSGVO - Nachweis der Einwilligung)
+    await createAuditLog({
+      userId: user._id,
+      action: 'TERMS_ACCEPTED',
+      details: {
+        email: user.email,
+        acceptedAt: new Date().toISOString(),
+      },
+      req,
+      email: user.email,
+    });
+    
     res.status(200).json({ message: 'Terms accepted successfully' });
   } catch (error) {
     logger.error('Error accepting terms:', error);
@@ -214,6 +228,19 @@ const deleteUserController = async (req, res) => {
   const { user } = req;
 
   try {
+    // DSGVO Audit Log: Account Deletion (BEFORE deletion!)
+    await createAuditLog({
+      userId: user._id,
+      action: 'USER_DELETED',
+      details: {
+        email: user.email,
+        name: user.name,
+        deletedAt: new Date().toISOString(),
+      },
+      req,
+      email: user.email,
+    });
+    
     await deleteMessages({ user: user.id }); // delete user messages
     await deleteAllUserSessions({ userId: user.id }); // delete user sessions
     await Transaction.deleteMany({ user: user.id }); // delete user transactions
