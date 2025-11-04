@@ -1,5 +1,6 @@
 const { generate2FATempToken } = require('~/server/services/twoFactorService');
 const { setAuthTokens } = require('~/server/services/AuthService');
+const { createAuditLog } = require('~/models/AuditLog');
 const { logger } = require('~/config');
 
 const loginController = async (req, res) => {
@@ -17,6 +18,18 @@ const loginController = async (req, res) => {
     user.id = user._id.toString();
 
     const token = await setAuthTokens(req.user._id, res);
+
+    // DSGVO Audit Log: Erfolgreicher Login
+    await createAuditLog({
+      userId: user._id,
+      action: 'USER_LOGIN',
+      details: {
+        email: user.email,
+        method: 'local',
+      },
+      req,
+      email: user.email,
+    });
 
     return res.status(200).send({ token, user });
   } catch (err) {

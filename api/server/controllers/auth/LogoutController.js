@@ -1,6 +1,7 @@
 const cookies = require('cookie');
 const { getOpenIdConfig } = require('~/strategies');
 const { logoutUser } = require('~/server/services/AuthService');
+const { createAuditLog } = require('~/models/AuditLog');
 const { isEnabled } = require('~/server/utils');
 const { logger } = require('~/config');
 
@@ -11,6 +12,20 @@ const logoutController = async (req, res) => {
     const { status, message } = logout;
     res.clearCookie('refreshToken');
     res.clearCookie('token_provider');
+    
+    // DSGVO Audit Log: Logout
+    if (req.user) {
+      await createAuditLog({
+        userId: req.user._id,
+        action: 'USER_LOGOUT',
+        details: {
+          email: req.user.email,
+        },
+        req,
+        email: req.user.email,
+      });
+    }
+    
     const response = { message };
     if (
       req.user.openidId != null &&
