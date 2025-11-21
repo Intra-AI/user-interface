@@ -248,12 +248,15 @@ const useFileHandling = (params?: UseFileHandling) => {
   const loadImage = (extendedFile: ExtendedFile, preview: string) => {
     const img = new Image();
     img.onload = async () => {
-      // Check if current model is Llama (cannot process images)
+      // Check if current model cannot process images (Llama or GPT-OSS)
       const currentModel = conversation?.model ?? '';
-      const isLlamaModel = currentModel.includes('llama') || currentModel.includes('Llama');
+      const isNonVisionModel = 
+        currentModel.includes('llama') || 
+        currentModel.includes('Llama') ||
+        currentModel.includes('gpt-oss');
       
-      // If Llama model is selected, switch to vision-capable model automatically
-      if (isLlamaModel && setConversation && conversation) {
+      // If non-vision model is selected, switch to vision-capable model automatically
+      if (isNonVisionModel && setConversation && conversation) {
         // Create updated conversation with vision-capable model and spec
         const updatedConversation = {
           ...conversation,
@@ -268,7 +271,7 @@ const useFileHandling = (params?: UseFileHandling) => {
         
         // Show notification in German
         showToast({
-          message: 'Modell wurde zu Mistral gewechselt, da Llama keine Bilder verarbeiten kann',
+          message: 'Modell wurde zu Mistral gewechselt, da das gewählte Modell keine Bilder verarbeiten kann',
           status: 'info',
           duration: 4000,
         });
