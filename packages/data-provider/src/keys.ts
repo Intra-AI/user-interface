@@ -72,6 +72,7 @@ export const DynamicQueryKeys = {
 export enum MutationKeys {
   fileUpload = 'fileUpload',
   fileDelete = 'fileDelete',
+  attachExistingFiles = 'attachExistingFiles',
   updatePreset = 'updatePreset',
   deletePreset = 'deletePreset',
   loginUser = 'loginUser',

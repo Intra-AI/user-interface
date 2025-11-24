@@ -7,6 +7,7 @@ import {
   FileType2Icon,
   FileImageIcon,
   TerminalSquareIcon,
+  FolderOpen,
 } from 'lucide-react';
 import {
   Providers,
@@ -15,6 +16,7 @@ import {
   defaultAgentCapabilities,
   isDocumentSupportedProvider,
 } from 'librechat-data-provider';
+import type { TFile } from 'librechat-data-provider';
 import {
   FileUpload,
   TooltipAnchor,
@@ -32,6 +34,7 @@ import {
 } from '~/hooks';
 import useSharePointFileHandling from '~/hooks/Files/useSharePointFileHandling';
 import { SharePointPickerDialog } from '~/components/SharePoint';
+import ExistingFilePickerDialog from './ExistingFilePickerDialog';
 import { useGetStartupConfig } from '~/data-provider';
 import { ephemeralAgentByConvoId } from '~/store';
 import { MenuItemProps } from '~/common';
@@ -66,7 +69,12 @@ const AttachFileMenu = ({
     ephemeralAgentByConvoId(conversationId),
   );
   const [toolResource, setToolResource] = useState<EToolResources | undefined>();
-  const { handleFileChange } = useFileHandling();
+  const [isExistingFileDialogOpen, setIsExistingFileDialogOpen] = useState(false);
+  const [isAttachingFiles, setIsAttachingFiles] = useState(false);
+  const { handleFileChange, handleExistingFiles } = useFileHandling({
+    overrideEndpoint: EModelEndpoint.agents,
+    overrideEndpointFileConfig: endpointFileConfig,
+  });
   const { handleSharePointFiles, isProcessing, downloadProgress } = useSharePointFileHandling({
     toolResource,
   });
@@ -196,6 +204,15 @@ const AttachFileMenu = ({
 
     const localItems = createMenuItems(handleUploadClick);
 
+    localItems.push({
+      label: localize('com_ui_select_from_my_files') || 'Select from My Files',
+      onClick: () => {
+        setIsExistingFileDialogOpen(true);
+        setIsPopoverActive(false);
+      },
+      icon: <FolderOpen className="icon-md" />,
+    });
+
     if (sharePointEnabled) {
       const sharePointItems = createMenuItems(() => {
         setIsSharePointDialogOpen(true);
@@ -248,6 +265,21 @@ const AttachFileMenu = ({
       disabled={isUploadDisabled}
     />
   );
+  
+  const handleExistingFilesSelected = async (files: TFile[]) => {
+    if (files.length > 0 && handleExistingFiles) {
+      setIsAttachingFiles(true);
+      try {
+        await handleExistingFiles(files, toolResource);
+        setIsExistingFileDialogOpen(false);
+      } catch (error) {
+        console.error('Error attaching existing files:', error);
+      } finally {
+        setIsAttachingFiles(false);
+      }
+    }
+  };
+  
   const handleSharePointFilesSelected = async (sharePointFiles: any[]) => {
     try {
       await handleSharePointFiles(sharePointFiles);
@@ -277,6 +309,12 @@ const AttachFileMenu = ({
           iconClassName="mr-0"
         />
       </FileUpload>
+      <ExistingFilePickerDialog
+        open={isExistingFileDialogOpen}
+        onOpenChange={setIsExistingFileDialogOpen}
+        onFilesSelected={handleExistingFilesSelected}
+        isProcessing={isAttachingFiles}
+      />
       <SharePointPickerDialog
         isOpen={isSharePointDialogOpen}
         onOpenChange={setIsSharePointDialogOpen}

@@ -124,6 +124,55 @@ router.get('/config', async (req, res) => {
   }
 });
 
+router.post('/attach-existing', async (req, res) => {
+  try {
+    const { file_ids, agent_id, assistant_id, tool_resource, conversationId } = req.body;
+    const userId = req.user.id;
+
+    if (!file_ids || !Array.isArray(file_ids) || file_ids.length === 0) {
+      return res.status(400).json({ message: 'file_ids array is required' });
+    }
+
+    const dbFiles = await getFiles({ 
+      file_id: { $in: file_ids },
+      user: userId 
+    });
+
+    if (dbFiles.length === 0) {
+      return res.status(404).json({ message: 'No files found with provided IDs' });
+    }
+
+    if (dbFiles.length !== file_ids.length) {
+      const foundIds = dbFiles.map(f => f.file_id);
+      const missingIds = file_ids.filter(id => !foundIds.includes(id));
+      logger.warn(`[/files/attach-existing] Some files not found: ${missingIds.join(', ')}`);
+    }
+
+    const attachedFiles = dbFiles.map(file => ({
+      file_id: file.file_id,
+      temp_file_id: file.file_id,
+      filepath: file.filepath,
+      type: file.type,
+      height: file.height,
+      width: file.width,
+      filename: file.filename,
+      source: file.source,
+      embedded: file.embedded,
+      bytes: file.bytes,
+      context: file.context,
+    }));
+
+    logger.debug(`[/files/attach-existing] Successfully attached ${attachedFiles.length} existing files`);
+    res.status(200).json({ 
+      message: 'Files attached successfully',
+      files: attachedFiles 
+    });
+  } catch (error) {
+    logger.error('[/files/attach-existing] Error attaching existing files:', error);
+    res.status(500).json({ message: 'Error attaching files', error: error.message });
+  }
+});
+
 router.delete('/', async (req, res) => {
   try {
     const { files: _files } = req.body;

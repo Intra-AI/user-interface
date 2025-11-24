@@ -13,9 +13,9 @@ import {
   defaultAssistantsVersion,
 } from 'librechat-data-provider';
 import debounce from 'lodash/debounce';
-import type { TEndpointsConfig, TError } from 'librechat-data-provider';
+import type { EndpointFileConfig, TEndpointsConfig, TError, TFile } from 'librechat-data-provider';
 import type { ExtendedFile, FileSetter } from '~/common';
-import { useGetFileConfig, useUploadFileMutation } from '~/data-provider';
+import { useGetFileConfig, useUploadFileMutation, useAttachExistingFilesMutation } from '~/data-provider';
 import useLocalize, { TranslationKeys } from '~/hooks/useLocalize';
 import { useDelayedUploadToast } from './useDelayedUploadToast';
 import { processFileForUpload } from '~/utils/heicConverter';
@@ -29,6 +29,8 @@ type UseFileHandling = {
   fileSetter?: FileSetter;
   fileFilter?: (file: File) => boolean;
   additionalMetadata?: Record<string, string | undefined>;
+  overrideEndpoint?: string;
+  overrideEndpointFileConfig?: EndpointFileConfig;
 };
 
 const useFileHandling = (params?: UseFileHandling) => {
@@ -51,7 +53,6 @@ const useFileHandling = (params?: UseFileHandling) => {
   const agent_id = params?.additionalMetadata?.agent_id ?? '';
   const assistant_id = params?.additionalMetadata?.assistant_id ?? '';
   const endpointType = useMemo(() => conversation?.endpointType, [conversation?.endpointType]);
-  const endpoint = useMemo(() => conversation?.endpoint ?? 'default', [conversation?.endpoint]);
 
   const { data: fileConfig = null } = useGetFileConfig({
     select: (data) => mergeFileConfig(data),
@@ -464,9 +465,94 @@ const useFileHandling = (params?: UseFileHandling) => {
     }
   };
 
+  const attachExistingFilesMutation = useAttachExistingFilesMutation({
+    onSuccess: (data) => {
+      const attachedFiles = data.files;
+      
+      let hasImage = false;
+      
+      attachedFiles.forEach((fileData) => {
+        const isImage = fileData.type?.startsWith('image/');
+        if (isImage) {
+          hasImage = true;
+        }
+        
+        const extendedFile: ExtendedFile = {
+          file_id: fileData.file_id,
+          temp_file_id: fileData.temp_file_id || fileData.file_id,
+          filepath: fileData.filepath,
+          type: fileData.type,
+          file: undefined,
+          height: fileData.height,
+          width: fileData.width,
+          filename: fileData.filename,
+          source: fileData.source,
+          embedded: fileData.embedded,
+          progress: 1,
+          preview: fileData.filepath,
+          size: fileData.bytes || 0,
+        };
+        
+        addFile(extendedFile);
+      });
+      
+      // Switch to vision model if image is attached and current model doesn't support vision
+      if (hasImage && setConversation && conversation) {
+        const currentModel = conversation?.model ?? '';
+        const isNonVisionModel = 
+          currentModel.includes('llama') || 
+          currentModel.includes('Llama') ||
+          currentModel.includes('gpt-oss');
+        
+        if (isNonVisionModel) {
+          const updatedConversation = {
+            ...conversation,
+            model: visionModel,
+            spec: visionModelSpec,
+            modelLabel: null,
+            iconURL: null,
+          };
+          
+          setConversation(updatedConversation);
+          
+          showToast({
+            message: 'Modell wurde zu Mistral gewechselt, da das gewählte Modell keine Bilder verarbeiten kann',
+            status: 'info',
+            duration: 4000,
+          });
+        }
+      }
+      
+      setFilesLoading(false);
+    },
+    onError: (error) => {
+      console.error('Error attaching existing files:', error);
+      setFilesLoading(false);
+    },
+  });
+
+  const handleExistingFiles = async (existingFiles: TFile[], _toolResource?: string) => {
+    if (!existingFiles || existingFiles.length === 0) {
+      return;
+    }
+
+    setFilesLoading(true);
+    
+    const file_ids = existingFiles.map((file) => file.file_id);
+    
+    await attachExistingFilesMutation.mutateAsync({
+      file_ids,
+      agent_id: agent_id || undefined,
+      assistant_id: assistant_id || undefined,
+      tool_resource: _toolResource,
+      conversationId: conversation?.conversationId,
+    });
+  };
+
   return {
     handleFileChange,
     handleFiles,
+    handleExistingFiles,
     abortUpload,
     setFiles,
     files,
