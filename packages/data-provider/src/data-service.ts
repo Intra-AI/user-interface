@@ -358,6 +358,16 @@ export const uploadFile = (data: FormData, signal?: AbortSignal | null): Promise
   return request.postMultiPart(endpoints.files(), data, requestConfig);
 };
 
+export const attachExistingFiles = (data: {
+  file_ids: string[];
+  agent_id?: string;
+  assistant_id?: string;
+  tool_resource?: string;
+  conversationId?: string;
+}): Promise<{ message: string; files: f.TFileUpload[] }> => {
+  return request.post(`${endpoints.files()}/attach-existing`, data);
+};
+
 /* actions */
 
 export const updateAction = (data: m.UpdateActionVariables): Promise<m.UpdateActionResponse> => {

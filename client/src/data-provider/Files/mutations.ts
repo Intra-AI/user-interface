@@ -189,3 +189,38 @@ export const useDeleteFilesMutation = (
     },
   });
 };
+
+export const useAttachExistingFilesMutation = (
+  _options?: t.UploadMutationOptions,
+): UseMutationResult<
+  { message: string; files: t.TFileUpload[] },
+  unknown,
+  { file_ids: string[]; agent_id?: string; assistant_id?: string; tool_resource?: string; conversationId?: string },
+  unknown
+> => {
+  const queryClient = useQueryClient();
+  const { showToast } = useToastContext();
+  const localize = useLocalize();
+  const { onSuccess, onError, ...options } = _options || {};
+  
+  return useMutation([MutationKeys.attachExistingFiles], {
+    mutationFn: (data) => dataService.attachExistingFiles(data),
+    ...options,
+    onSuccess: (data, vars, context) => {
+      showToast({
+        message: localize('com_ui_attach_success') || `${data.files.length} file(s) attached successfully`,
+        status: 'success',
+      });
+      
+      onSuccess?.(data, vars, context);
+    },
+    onError: (error, vars, context) => {
+      showToast({
+        message: localize('com_ui_attach_error') || 'Error attaching files',
+        status: 'error',
+      });
+      
+      onError?.(error, vars, context);
+    },
+  });
+};

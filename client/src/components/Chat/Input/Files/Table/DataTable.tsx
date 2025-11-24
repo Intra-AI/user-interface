@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ListFilter } from 'lucide-react';
 import { useSetRecoilState } from 'recoil';
 import {
@@ -43,6 +43,7 @@ import store from '~/store';
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  onSelectionChange?: (selectedRows: TData[]) => void;
 }
 
 const contextMap = {
@@ -60,7 +61,7 @@ type Style = {
   zIndex?: number;
 };
 
-export default function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
+export default function DataTable<TData, TValue>({ columns, data, onSelectionChange }: DataTableProps<TData, TValue>) {
   const localize = useLocalize();
   const [isDeleting, setIsDeleting] = useState(false);
   const setFiles = useSetRecoilState(store.filesByIndex(0));
@@ -91,29 +92,39 @@ export default function DataTable<TData, TValue>({ columns, data }: DataTablePro
     },
   });
 
+  // Notify parent component of selection changes
+  useEffect(() => {
+    if (onSelectionChange) {
+      const selectedRows = table.getFilteredSelectedRowModel().rows.map((row) => row.original);
+      onSelectionChange(selectedRows);
+    }
+  }, [rowSelection, onSelectionChange, table]);
+
   return (
     <div className="flex h-full flex-col gap-4">
       <div className="flex flex-wrap items-center gap-2 py-2 sm:gap-4 sm:py-4">
-        <Button
-          variant="outline"
-          onClick={() => {
-            setIsDeleting(true);
-            const filesToDelete = table
-              .getFilteredSelectedRowModel()
-              .rows.map((row) => row.original);
-            deleteFiles({ files: filesToDelete as TFile[], setFiles });
-            setRowSelection({});
-          }}
-          disabled={!table.getFilteredSelectedRowModel().rows.length || isDeleting}
-          className={cn('min-w-[40px] transition-all duration-200', isSmallScreen && 'px-2 py-1')}
-        >
-          {isDeleting ? (
-            <Spinner className="size-3.5 sm:size-4" />
-          ) : (
-            <TrashIcon className="size-3.5 text-red-400 sm:size-4" />
-          )}
-          {!isSmallScreen && <span className="ml-2">{localize('com_ui_delete')}</span>}
-        </Button>
+        {!onSelectionChange && (
+          <Button
+            variant="outline"
+            onClick={() => {
+              setIsDeleting(true);
+              const filesToDelete = table
+                .getFilteredSelectedRowModel()
+                .rows.map((row) => row.original);
+              deleteFiles({ files: filesToDelete as TFile[], setFiles });
+              setRowSelection({});
+            }}
+            disabled={!table.getFilteredSelectedRowModel().rows.length || isDeleting}
+            className={cn('min-w-[40px] transition-all duration-200', isSmallScreen && 'px-2 py-1')}
+          >
+            {isDeleting ? (
+              <Spinner className="size-3.5 sm:size-4" />
+            ) : (
+              <TrashIcon className="size-3.5 text-red-400 sm:size-4" />
+            )}
+            {!isSmallScreen && <span className="ml-2">{localize('com_ui_delete')}</span>}
+          </Button>
+        )}
         <Input
           placeholder={localize('com_files_filter')}
           value={(table.getColumn('filename')?.getFilterValue() as string | undefined) ?? ''}
