@@ -1,8 +1,9 @@
 import React, { useRef, useState, useMemo } from 'react';
 import * as Ariakit from '@ariakit/react';
 import { useSetRecoilState } from 'recoil';
-import { FileSearch, ImageUpIcon, TerminalSquareIcon, FileType2Icon } from 'lucide-react';
+import { FileSearch, ImageUpIcon, TerminalSquareIcon, FileType2Icon, FolderOpen } from 'lucide-react';
 import { EToolResources, EModelEndpoint, defaultAgentCapabilities } from 'librechat-data-provider';
+import type { TFile } from 'librechat-data-provider';
 import {
   FileUpload,
   TooltipAnchor,
@@ -14,6 +15,7 @@ import type { EndpointFileConfig } from 'librechat-data-provider';
 import { useLocalize, useGetAgentsConfig, useFileHandling, useAgentCapabilities } from '~/hooks';
 import useSharePointFileHandling from '~/hooks/Files/useSharePointFileHandling';
 import { SharePointPickerDialog } from '~/components/SharePoint';
+import ExistingFilePickerDialog from './ExistingFilePickerDialog';
 import { useGetStartupConfig } from '~/data-provider';
 import { ephemeralAgentByConvoId } from '~/store';
 import { MenuItemProps } from '~/common';
@@ -32,7 +34,9 @@ const AttachFileMenu = ({ disabled, conversationId, endpointFileConfig }: Attach
   const [isPopoverActive, setIsPopoverActive] = useState(false);
   const setEphemeralAgent = useSetRecoilState(ephemeralAgentByConvoId(conversationId));
   const [toolResource, setToolResource] = useState<EToolResources | undefined>();
-  const { handleFileChange } = useFileHandling({
+  const [isExistingFileDialogOpen, setIsExistingFileDialogOpen] = useState(false);
+  const [isAttachingFiles, setIsAttachingFiles] = useState(false);
+  const { handleFileChange, handleExistingFiles } = useFileHandling({
     overrideEndpoint: EModelEndpoint.agents,
     overrideEndpointFileConfig: endpointFileConfig,
   });
@@ -91,6 +95,10 @@ const AttachFileMenu = ({ disabled, conversationId, endpointFileConfig }: Attach
           label: localize('com_ui_upload_file_search'),
           onClick: () => {
             setToolResource(EToolResources.file_search);
+            setEphemeralAgent((prev) => ({
+              ...prev,
+              [EToolResources.file_search]: true,
+            }));
             onAction();
           },
           icon: <FileSearch className="icon-md" />,
@@ -116,6 +124,15 @@ const AttachFileMenu = ({ disabled, conversationId, endpointFileConfig }: Attach
     };
 
     const localItems = createMenuItems(handleUploadClick);
+
+    localItems.push({
+      label: localize('com_ui_select_from_my_files') || 'Select from My Files',
+      onClick: () => {
+        setIsExistingFileDialogOpen(true);
+        setIsPopoverActive(false);
+      },
+      icon: <FolderOpen className="icon-md" />,
+    });
 
     if (sharePointEnabled) {
       const sharePointItems = createMenuItems(() => {
@@ -162,6 +179,21 @@ const AttachFileMenu = ({ disabled, conversationId, endpointFileConfig }: Attach
       disabled={isUploadDisabled}
     />
   );
+  
+  const handleExistingFilesSelected = async (files: TFile[]) => {
+    if (files.length > 0 && handleExistingFiles) {
+      setIsAttachingFiles(true);
+      try {
+        await handleExistingFiles(files, toolResource);
+        setIsExistingFileDialogOpen(false);
+      } catch (error) {
+        console.error('Error attaching existing files:', error);
+      } finally {
+        setIsAttachingFiles(false);
+      }
+    }
+  };
+  
   const handleSharePointFilesSelected = async (sharePointFiles: any[]) => {
     try {
       await handleSharePointFiles(sharePointFiles);
@@ -191,6 +223,12 @@ const AttachFileMenu = ({ disabled, conversationId, endpointFileConfig }: Attach
           iconClassName="mr-0"
         />
       </FileUpload>
+      <ExistingFilePickerDialog
+        open={isExistingFileDialogOpen}
+        onOpenChange={setIsExistingFileDialogOpen}
+        onFilesSelected={handleExistingFilesSelected}
+        isProcessing={isAttachingFiles}
+      />
       <SharePointPickerDialog
         isOpen={isSharePointDialogOpen}
         onOpenChange={setIsSharePointDialogOpen}
