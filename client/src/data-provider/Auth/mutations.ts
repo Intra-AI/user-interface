@@ -157,6 +157,16 @@ export const useRegenerateBackupCodesMutation = (): UseMutationResult<
   });
 };
 
+export const useChangePasswordMutation = (
+  options?: t.MutationOptions<t.TChangePasswordResponse, t.TChangePasswordRequest>,
+): UseMutationResult<t.TChangePasswordResponse, unknown, t.TChangePasswordRequest, unknown> => {
+  return useMutation(
+    [MutationKeys.changePassword],
+    (payload: t.TChangePasswordRequest) => dataService.changePassword(payload),
+    options || {},
+  );
+};
+
 export const useVerifyTwoFactorTempMutation = (
   options?: t.MutationOptions<t.TVerify2FATempResponse, t.TVerify2FATempRequest, unknown, unknown>,
 ): UseMutationResult<t.TVerify2FATempResponse, unknown, t.TVerify2FATempRequest, unknown> => {
