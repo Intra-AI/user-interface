@@ -425,6 +425,15 @@ export type TVerify2FATempResponse = {
   message?: string;
 };
 
+export type TChangePasswordRequest = {
+  currentPassword: string;
+  newPassword: string;
+};
+
+export type TChangePasswordResponse = {
+  message: string;
+};
+
 /**
  * Request for disabling 2FA.
  */

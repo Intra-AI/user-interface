@@ -150,6 +150,8 @@ export const requestPasswordReset = () => `${BASE_URL}/api/auth/requestPasswordR
 
 export const resetPassword = () => `${BASE_URL}/api/auth/resetPassword`;
 
+export const changePassword = () => `${BASE_URL}/api/auth/change-password`;
+
 export const verifyEmail = () => `${BASE_URL}/api/user/verify`;
 
 // Auth page URLs (for client-side navigation and redirects)

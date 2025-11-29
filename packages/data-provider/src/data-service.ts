@@ -975,6 +975,10 @@ export function verifyTwoFactorTemp(
   return request.post(endpoints.verifyTwoFactorTemp(), payload);
 }
 
+export function changePassword(payload: t.TChangePasswordRequest): Promise<t.TChangePasswordResponse> {
+  return request.post(endpoints.changePassword(), payload);
+}
+
 /* Memories */
 export const getMemories = (): Promise<q.MemoriesResponse> => {
   return request.get(endpoints.memories());
