@@ -17,6 +17,7 @@ const {
 const { verify2FAWithTempToken } = require('~/server/controllers/auth/TwoFactorAuthController');
 const { logoutController } = require('~/server/controllers/auth/LogoutController');
 const { loginController } = require('~/server/controllers/auth/LoginController');
+const { changePasswordController } = require('~/server/controllers/auth/ChangePasswordController');
 const { getAppConfig } = require('~/server/services/Config');
 const middleware = require('~/server/middleware');
 const { Balance } = require('~/db/models');
@@ -69,6 +70,8 @@ router.post('/2fa/verify-temp', middleware.checkBan, verify2FAWithTempToken);
 router.post('/2fa/confirm', middleware.requireJwtAuth, confirm2FA);
 router.post('/2fa/disable', middleware.requireJwtAuth, disable2FA);
 router.post('/2fa/backup/regenerate', middleware.requireJwtAuth, regenerateBackupCodes);
+
+router.post('/change-password', middleware.requireJwtAuth, changePasswordController);
 
 router.get('/graph-token', middleware.requireJwtAuth, graphTokenController);
 

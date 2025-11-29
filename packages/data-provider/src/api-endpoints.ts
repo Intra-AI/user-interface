@@ -147,6 +147,8 @@ export const requestPasswordReset = () => `${BASE_URL}/api/auth/requestPasswordR
 
 export const resetPassword = () => `${BASE_URL}/api/auth/resetPassword`;
 
+export const changePassword = () => `${BASE_URL}/api/auth/change-password`;
+
 export const verifyEmail = () => `${BASE_URL}/api/user/verify`;
 
 export const resendVerificationEmail = () => `${BASE_URL}/api/user/verify/resend`;
