@@ -10,6 +10,7 @@ services:
       - meilisearch
       - rag_api
     restart: always
+    user: "${UID}:${GID}"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     env_file:
@@ -17,7 +18,7 @@ services:
     environment:
       - HOST=0.0.0.0
       - NODE_ENV=production
-      - MONGO_URI=mongodb://mongodb:27017/LibreChat
+      - MONGO_URI=${MONGO_URI}
       - MEILI_HOST=http://meilisearch:7700
       - RAG_PORT=${RAG_PORT:-8000}
       - RAG_API_URL=http://rag_api:${RAG_PORT:-8000}
@@ -47,10 +48,14 @@ services:
   mongodb:
     container_name: chat-mongodb
     image: mongo:7
-    restart: always
+    restart: unless-stopped
     volumes:
-      - mongodb_data:/data/db
-    command: mongod --noauth
+      - /mnt/mongo_secure/data/db:/data/db
+    command: mongod --auth
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
     networks:
       - internal
 
@@ -103,5 +108,4 @@ networks:
     external: true
 
 volumes:
-  mongodb_data:
   pgdata2:
