@@ -38,6 +38,9 @@ RUN \
 
 COPY --chown=node:node . .
 
+# Install MCP server dependencies
+RUN cd /app/mcp-servers/flux-image-gen && npm install --production
+
 RUN \
     # React client build
     NODE_OPTIONS="--max-old-space-size=2048" npm run frontend; \
