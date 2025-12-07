@@ -22,10 +22,15 @@ services:
       - MEILI_HOST=http://meilisearch:7700
       - RAG_PORT=${RAG_PORT:-8000}
       - RAG_API_URL=http://rag_api:${RAG_PORT:-8000}
+      - DEBUG_LOGGING=false
+      - DEBUG_CONSOLE=false
+      - TRUST_PROXY=1
+      - PROXY_TRUSTED_IPS=172.16.0.0/12,10.0.0.0/8
     volumes:
       - type: bind
         source: ./librechat.yaml
         target: /app/librechat.yaml
+      - ./mcp-servers:/app/mcp-servers
       - ./images:/app/client/public/images
       - ./uploads:/app/uploads
       - ./logs:/app/api/logs
@@ -40,11 +45,9 @@ services:
       - "traefik.http.routers.librechat.rule=Host(`chat.intra-ai.de`)"
       - "traefik.http.routers.librechat.entrypoints=websecure"
       - "traefik.http.routers.librechat.tls.certresolver=le"
-      - "traefik.http.routers.librechat.middlewares=hsts-headers@file,gzip@file,ratelimit@file"
+      - "traefik.http.routers.librechat.middlewares=hsts-headers@file,gzip@file,ratelimit@file,privacy-headers@file"
       - "traefik.http.services.librechat.loadbalancer.server.port=3080"
       - "traefik.docker.network=web"
-      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
-
   mongodb:
     container_name: chat-mongodb
     image: mongo:7
