@@ -218,7 +218,7 @@ const defaultRolesSchema = z.object({
         [Permissions.USE]: z.boolean().default(false),
       }),
       [PermissionTypes.FILE_SEARCH]: fileSearchPermissionsSchema.extend({
-        [Permissions.USE]: z.boolean().default(true),
+        [Permissions.USE]: z.boolean().default(false),
       }),
       [PermissionTypes.FILE_CITATIONS]: fileCitationsPermissionsSchema.extend({
         [Permissions.USE]: z.boolean().default(true),
