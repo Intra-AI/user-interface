@@ -2,6 +2,7 @@ const express = require('express');
 const {
   createFileLimiters,
   configMiddleware,
+  checkStorageLimit,
   requireJwtAuth,
   uaParser,
   checkBan,
@@ -29,7 +30,7 @@ const initialize = async () => {
   router.use('/speech', speech);
 
   const { fileUploadIpLimiter, fileUploadUserLimiter } = createFileLimiters();
-  router.post('*', fileUploadIpLimiter, fileUploadUserLimiter);
+  router.post('*', fileUploadIpLimiter, fileUploadUserLimiter, checkStorageLimit);
   router.post('/', upload.single('file'));
   router.post('/images', upload.single('file'));
   router.post('/images/avatar', upload.single('file'));

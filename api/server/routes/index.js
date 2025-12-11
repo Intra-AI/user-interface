@@ -8,6 +8,7 @@ const messages = require('./messages');
 const memories = require('./memories');
 const presets = require('./presets');
 const prompts = require('./prompts');
+const storage = require('./storage');
 const balance = require('./balance');
 const plugins = require('./plugins');
 const actions = require('./actions');
@@ -49,6 +50,7 @@ module.exports = {
   plugins,
   actions,
   presets,
+  storage,
   balance,
   messages,
   memories,

@@ -91,6 +91,14 @@ export function getUserBalance(): Promise<t.TBalanceResponse> {
   return request.get(endpoints.balance());
 }
 
+export function getUserStorageUsage(): Promise<f.TStorageUsage> {
+  return request.get(endpoints.storage());
+}
+
+export function deleteOldFiles(body: f.TDeleteOldFilesBody): Promise<f.TDeleteOldFilesResponse> {
+  return request.deleteWithOptions(endpoints.deleteOldFiles(), { data: body });
+}
+
 export const updateTokenCount = (text: string) => {
   return request.post(endpoints.tokenizer(), { arg: text });
 };

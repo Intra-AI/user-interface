@@ -43,6 +43,8 @@ export const health = () => `${BASE_URL}/health`;
 export const user = () => `${BASE_URL}/api/user`;
 
 export const balance = () => `${BASE_URL}/api/balance`;
+export const storage = () => `${BASE_URL}/api/storage`;
+export const deleteOldFiles = () => `${BASE_URL}/api/files/old`;
 
 export const userPlugins = () => `${BASE_URL}/api/user/plugins`;
 

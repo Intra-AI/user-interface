@@ -22,7 +22,7 @@ import useLocalize, { TranslationKeys } from '~/hooks/useLocalize';
 import { useDelayedUploadToast } from './useDelayedUploadToast';
 import { processFileForUpload } from '~/utils/heicConverter';
 import { useChatContext } from '~/Providers/ChatContext';
-import { ephemeralAgentByConvoId } from '~/store';
+import { ephemeralAgentByConvoId, showStorageLimitDialog } from '~/store';
 import { logger, validateFiles } from '~/utils';
 import useClientResize from './useClientResize';
 import useUpdateFiles from './useUpdateFiles';
@@ -46,6 +46,7 @@ const useFileHandling = (params?: UseFileHandling) => {
   const setEphemeralAgent = useSetRecoilState(
     ephemeralAgentByConvoId(conversation?.conversationId ?? Constants.NEW_CONVO),
   );
+  const setStorageLimitDialogState = useSetRecoilState(showStorageLimitDialog);
   const setError = (error: string) => setErrors((prevErrors) => [...prevErrors, error]);
   const { addFile, replaceFile, updateFileById, deleteFileById } = useUpdateFiles(
     params?.fileSetter ?? setFiles,
@@ -153,6 +154,17 @@ const useFileHandling = (params?: UseFileHandling) => {
         }
         clearUploadTimer(file_id as string);
         deleteFileById(file_id as string);
+
+        // Check if this is a storage limit exceeded error
+        const responseData = error?.response?.data;
+        if (responseData?.code === 'STORAGE_LIMIT_EXCEEDED') {
+          setStorageLimitDialogState({
+            open: true,
+            used: responseData.used || 0,
+            limit: responseData.limit || 0,
+          });
+          return;
+        }
 
         let errorMessage = 'com_error_files_upload';
 
