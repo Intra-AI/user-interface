@@ -466,4 +466,73 @@ router.post('/', async (req, res) => {
   }
 });
 
+/**
+ * DELETE /files/old
+ * Delete user's files older than a specified time period
+ * Body: { olderThan: 'day' | 'week' | '4weeks' | 'all' }
+ */
+router.delete('/old', async (req, res) => {
+  try {
+    const { olderThan } = req.body;
+    const userId = req.user.id;
+
+    if (!olderThan || !['day', 'week', '4weeks', 'all'].includes(olderThan)) {
+      return res.status(400).json({ message: 'Invalid olderThan value. Must be: day, week, 4weeks, or all' });
+    }
+
+    // Calculate the cutoff date
+    let cutoffDate;
+    const now = new Date();
+
+    switch (olderThan) {
+      case 'day':
+        cutoffDate = new Date(now.getTime() - 24 * 60 * 60 * 1000); // 1 day ago
+        break;
+      case 'week':
+        cutoffDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // 1 week ago
+        break;
+      case '4weeks':
+        cutoffDate = new Date(now.getTime() - 28 * 24 * 60 * 60 * 1000); // 4 weeks ago
+        break;
+      case 'all':
+        cutoffDate = new Date(now.getTime() + 1000); // Future date to include all files
+        break;
+    }
+
+    // Build query to find old files
+    const query = {
+      user: userId,
+      createdAt: { $lt: cutoffDate },
+    };
+
+    // Get files to delete
+    const filesToDelete = await getFiles(query);
+
+    if (filesToDelete.length === 0) {
+      return res.status(200).json({
+        message: 'No files to delete',
+        deletedCount: 0,
+        freedBytes: 0,
+      });
+    }
+
+    // Calculate total bytes that will be freed
+    const freedBytes = filesToDelete.reduce((sum, file) => sum + (file.bytes || 0), 0);
+
+    // Process deletion
+    await processDeleteRequest({ req, files: filesToDelete });
+
+    logger.info(`[/files/old] User ${userId} deleted ${filesToDelete.length} old files, freed ${freedBytes} bytes`);
+
+    res.status(200).json({
+      message: 'Old files deleted successfully',
+      deletedCount: filesToDelete.length,
+      freedBytes,
+    });
+  } catch (error) {
+    logger.error('[/files/old] Error deleting old files:', error);
+    res.status(500).json({ message: 'Error deleting old files', error: error.message });
+  }
+});
+
 module.exports = router;

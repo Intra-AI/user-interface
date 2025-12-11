@@ -50,6 +50,7 @@ export enum QueryKeys {
   health = 'health',
   userTerms = 'userTerms',
   banner = 'banner',
+  storageUsage = 'storageUsage',
   /* Memories */
   memories = 'memories',
   principalSearch = 'principalSearch',
@@ -72,6 +73,7 @@ export const DynamicQueryKeys = {
 export enum MutationKeys {
   fileUpload = 'fileUpload',
   fileDelete = 'fileDelete',
+  deleteOldFiles = 'deleteOldFiles',
   attachExistingFiles = 'attachExistingFiles',
   updatePreset = 'updatePreset',
   deletePreset = 'deletePreset',

@@ -3,6 +3,7 @@ const validateRegistration = require('./validateRegistration');
 const buildEndpointOption = require('./buildEndpointOption');
 const validateMessageReq = require('./validateMessageReq');
 const checkDomainAllowed = require('./checkDomainAllowed');
+const checkStorageLimit = require('./checkStorageLimit');
 const concurrentLimiter = require('./concurrentLimiter');
 const requireLocalAuth = require('./requireLocalAuth');
 const canDeleteAccount = require('./canDeleteAccount');
@@ -44,6 +45,7 @@ module.exports = {
   configMiddleware,
   concurrentLimiter,
   checkDomainAllowed,
+  checkStorageLimit,
   validateMessageReq,
   buildEndpointOption,
   validateRegistration,

@@ -3,9 +3,21 @@ import { SettingsViews, LocalStorageKeys } from 'librechat-data-provider';
 import { atomWithLocalStorage } from '~/store/utils';
 import type { TOptionSettings } from '~/common';
 
+// Storage limit dialog data type
+export type TStorageLimitDialogData = {
+  open: boolean;
+  used: number;
+  limit: number;
+};
+
 // Static atoms without localStorage
 const staticAtoms = {
   abortScroll: atom<boolean>({ key: 'abortScroll', default: false }),
+  showFiles: atom<boolean>({ key: 'showFiles', default: false }),
+  showStorageLimitDialog: atom<TStorageLimitDialogData>({
+    key: 'showStorageLimitDialog',
+    default: { open: false, used: 0, limit: 0 },
+  }),
   optionSettings: atom<TOptionSettings>({ key: 'optionSettings', default: {} }),
   currentSettingsView: atom<SettingsViews>({
     key: 'currentSettingsView',
@@ -72,5 +84,8 @@ const localStorageAtoms = {
   // Account settings
   UsernameDisplay: atomWithLocalStorage('UsernameDisplay', true),
 };
+
+// Named export for showStorageLimitDialog atom
+export const { showStorageLimitDialog, showFiles } = staticAtoms;
 
 export default { ...staticAtoms, ...localStorageAtoms };

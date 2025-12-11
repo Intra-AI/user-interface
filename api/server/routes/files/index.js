@@ -2,6 +2,7 @@ const express = require('express');
 const {
   createFileLimiters,
   configMiddleware,
+  checkStorageLimit,
   requireJwtAuth,
   uaParser,
   checkBan,
@@ -37,7 +38,12 @@ const initialize = async () => {
         if (err) {
           return next(err);
         }
-        return fileUploadUserLimiter(req, res, next);
+        return fileUploadUserLimiter(req, res, (err2) => {
+          if (err2) {
+            return next(err2);
+          }
+          return checkStorageLimit(req, res, next);
+        });
       });
     }
     next();

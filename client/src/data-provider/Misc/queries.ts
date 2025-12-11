@@ -3,6 +3,7 @@ import { QueryKeys, dataService } from 'librechat-data-provider';
 import { useQuery } from '@tanstack/react-query';
 import type { QueryObserverResult, UseQueryOptions } from '@tanstack/react-query';
 import type t from 'librechat-data-provider';
+import type { TStorageUsage } from 'librechat-data-provider';
 import store from '~/store';
 
 export const useGetBannerQuery = (
@@ -29,6 +30,23 @@ export const useGetUserBalance = (
     ...config,
     enabled: (config?.enabled ?? true) === true && queriesEnabled,
   });
+};
+
+export const useGetUserStorageUsage = (
+  config?: UseQueryOptions<TStorageUsage>,
+): QueryObserverResult<TStorageUsage> => {
+  const queriesEnabled = useRecoilValue<boolean>(store.queriesEnabled);
+  return useQuery<TStorageUsage>(
+    [QueryKeys.storageUsage],
+    () => dataService.getUserStorageUsage(),
+    {
+      refetchOnWindowFocus: true,
+      refetchOnReconnect: true,
+      refetchOnMount: true,
+      ...config,
+      enabled: (config?.enabled ?? true) === true && queriesEnabled,
+    },
+  );
 };
 
 export const useGetSearchEnabledQuery = (
