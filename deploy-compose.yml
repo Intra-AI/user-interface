@@ -41,7 +41,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.librechat-http.rule=Host(`chat.intra-ai.de`)"
       - "traefik.http.routers.librechat-http.entrypoints=web"
-      - "traefik.http.routers.librechat-http.middlewares=redirect-to-https"
+      - "traefik.http.routers.librechat-http.middlewares=redirect-to-https@file"
       - "traefik.http.routers.librechat.rule=Host(`chat.intra-ai.de`)"
       - "traefik.http.routers.librechat.entrypoints=websecure"
       - "traefik.http.routers.librechat.tls.certresolver=le"

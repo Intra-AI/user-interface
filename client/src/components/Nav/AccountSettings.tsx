@@ -1,7 +1,7 @@
 import { useState, memo } from 'react';
 import { useRecoilState } from 'recoil';
 import * as Select from '@ariakit/react/select';
-import { FileText, LogOut, HardDrive } from 'lucide-react';
+import { FileText, LogOut, HardDrive, HelpCircle } from 'lucide-react';
 import { PermissionTypes, Permissions } from 'librechat-data-provider';
 import { LinkIcon, GearIcon, DropdownMenuSeparator, Avatar } from '@librechat/client';
 import { useGetStartupConfig, useGetUserBalance, useGetUserStorageUsage } from '~/data-provider';
@@ -10,6 +10,7 @@ import FilesView from '~/components/Chat/Input/Files/FilesView';
 import { useAuthContext } from '~/hooks/AuthContext';
 import { useLocalize, useHasAccess } from '~/hooks';
 import Settings from './Settings';
+import SupportModal from './SupportModal';
 import store from '~/store';
 
 function formatBytes(bytes: number, decimals = 2): string {
@@ -35,6 +36,7 @@ function AccountSettings() {
   });
   const [showSettings, setShowSettings] = useState(false);
   const [showFiles, setShowFiles] = useRecoilState(store.showFiles);
+  const [showSupport, setShowSupport] = useRecoilState(store.showSupport);
   const [storageLimitDialog, setStorageLimitDialog] = useRecoilState(store.showStorageLimitDialog);
 
   const hasHelpFaqAccess = useHasAccess({
@@ -139,6 +141,14 @@ function AccountSettings() {
         )}
         <Select.SelectItem
           value=""
+          onClick={() => setShowSupport(true)}
+          className="select-item text-sm"
+        >
+          <HelpCircle className="icon-md" aria-hidden="true" />
+          {localize('com_nav_support')}
+        </Select.SelectItem>
+        <Select.SelectItem
+          value=""
           onClick={() => setShowSettings(true)}
           className="select-item text-sm"
         >
@@ -157,6 +167,7 @@ function AccountSettings() {
         </Select.SelectItem>
       </Select.SelectPopover>
       {showFiles && <FilesView open={showFiles} onOpenChange={setShowFiles} />}
+      {showSupport && <SupportModal open={showSupport} onOpenChange={setShowSupport} />}
       {showSettings && <Settings open={showSettings} onOpenChange={setShowSettings} />}
       <StorageLimitDialog
         open={storageLimitDialog.open}

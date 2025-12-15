@@ -42,8 +42,8 @@ COPY --chown=node:node . .
 RUN cd /app/mcp-servers/flux-image-gen && npm install --production
 
 RUN \
-    # React client build
-    NODE_OPTIONS="--max-old-space-size=2048" npm run frontend; \
+    # React client build (reduced memory for build)
+    NODE_OPTIONS="--max-old-space-size=1536" npm run frontend; \
     npm prune --production; \
     npm cache clean --force
 

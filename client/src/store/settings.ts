@@ -14,6 +14,7 @@ export type TStorageLimitDialogData = {
 const staticAtoms = {
   abortScroll: atom<boolean>({ key: 'abortScroll', default: false }),
   showFiles: atom<boolean>({ key: 'showFiles', default: false }),
+  showSupport: atom<boolean>({ key: 'showSupport', default: false }),
   showStorageLimitDialog: atom<TStorageLimitDialogData>({
     key: 'showStorageLimitDialog',
     default: { open: false, used: 0, limit: 0 },
