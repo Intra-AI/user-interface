@@ -117,6 +117,23 @@ export function deleteOldFiles(body: f.TDeleteOldFilesBody): Promise<f.TDeleteOl
   return request.deleteWithOptions(endpoints.deleteOldFiles(), { data: body });
 }
 
+export interface TSupportRequest {
+  subject: string;
+  category: string;
+  priority: string;
+  description: string;
+}
+
+export interface TSupportResponse {
+  success: boolean;
+  ticketId?: string;
+  message?: string;
+}
+
+export function submitSupportRequest(data: TSupportRequest): Promise<TSupportResponse> {
+  return request.post(endpoints.support(), data);
+}
+
 export const updateTokenCount = (text: string) => {
   return request.post(endpoints.tokenizer(), { arg: text });
 };

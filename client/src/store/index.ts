@@ -15,7 +15,7 @@ import isTemporary from './temporary';
 export * from './agents';
 export * from './mcp';
 export * from './favorites';
-export { showStorageLimitDialog, showFiles } from './settings';
+export { showStorageLimitDialog, showFiles, showSupport } from './settings';
 
 export default {
   ...artifacts,
