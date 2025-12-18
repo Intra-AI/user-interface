@@ -165,6 +165,51 @@ async function batchUpdateFiles(updates) {
   logger.info(`Updated ${result.modifiedCount} files with new S3 URLs`);
 }
 
+/**
+ * Deletes files older than the specified number of minutes.
+ * @param {number} minutesOld - The age threshold in minutes. Files older than this will be deleted.
+ * @returns {Promise<Object>} An object containing the deletion result.
+ */
+const deleteOldFiles = async (minutesOld) => {
+  try {
+    const cutoffDate = new Date(Date.now() - minutesOld * 60 * 1000);
+    
+    const filter = {
+      createdAt: { $lt: cutoffDate },
+      // Exclude files with expiresAt set (those are handled by TTL index)
+      expiresAt: { $exists: false },
+    };
+
+    // Count files to delete for logging
+    const filesToDelete = await File.find(filter).select('file_id bytes');
+    const fileCount = filesToDelete.length;
+    const totalBytes = filesToDelete.reduce((sum, file) => sum + (file.bytes || 0), 0);
+
+    if (fileCount === 0) {
+      logger.debug(`[deleteOldFiles] No files older than ${minutesOld} minutes found`);
+      return {
+        deletedCount: 0,
+        freedBytes: 0,
+      };
+    }
+
+    // Delete files
+    const result = await File.deleteMany(filter);
+
+    logger.info(
+      `[deleteOldFiles] Deleted ${result.deletedCount} files older than ${minutesOld} minutes, freed ${totalBytes} bytes`,
+    );
+
+    return {
+      deletedCount: result.deletedCount,
+      freedBytes: totalBytes,
+    };
+  } catch (error) {
+    logger.error('[deleteOldFiles] Error deleting old files', error);
+    throw new Error('Error deleting old files');
+  }
+};
+
 module.exports = {
   findFileById,
   getFiles,
@@ -176,4 +221,5 @@ module.exports = {
   deleteFiles,
   deleteFileByFilter,
   batchUpdateFiles,
+  deleteOldFiles,
 };
