@@ -2815,3 +2815,97 @@ html {
 .sharepoint-picker-bg{
   background-color: #F5F5F5;
 }
+
+/* Zammad Chat Widget Customization */
+.zammad-chat {
+  font-family: inherit !important;
+}
+
+.zammad-chat .zammad-chat-header {
+  background: var(--green-700) !important;
+  color: var(--white) !important;
+}
+
+.zammad-chat .zammad-chat-body {
+  background: var(--surface-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+.zammad-chat .zammad-chat-input {
+  background: var(--surface-primary) !important;
+  border-top: 1px solid var(--border-light) !important;
+}
+
+.zammad-chat .zammad-chat-input textarea {
+  background: var(--surface-secondary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-medium) !important;
+  border-radius: 0.5rem !important;
+  padding: 0.5rem !important;
+}
+
+.zammad-chat .zammad-chat-input textarea:focus {
+  outline: none !important;
+  border-color: var(--green-600) !important;
+  box-shadow: 0 0 0 2px rgba(47, 111, 215, 0.2) !important;
+}
+
+.zammad-chat .zammad-chat-send {
+  background: var(--green-700) !important;
+  color: var(--white) !important;
+  border-radius: 0.5rem !important;
+}
+
+.zammad-chat .zammad-chat-send:hover {
+  background: var(--green-800) !important;
+}
+
+.zammad-chat .zammad-chat-message--customer {
+  background: var(--green-100) !important;
+  color: var(--text-primary) !important;
+}
+
+.zammad-chat .zammad-chat-message--agent {
+  background: var(--surface-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+.zammad-chat-modal .zammad-chat-welcome {
+  background: var(--surface-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+.zammad-chat-button {
+  background: var(--green-700) !important;
+}
+
+.zammad-chat-button:hover {
+  background: var(--green-800) !important;
+}
+
+/* Dark mode support for Zammad Chat */
+.dark .zammad-chat .zammad-chat-body {
+  background: var(--surface-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark .zammad-chat .zammad-chat-input textarea {
+  background: var(--surface-secondary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-medium) !important;
+}
+
+.dark .zammad-chat .zammad-chat-message--customer {
+  background: var(--green-900) !important;
+  color: var(--white) !important;
+}
+
+.dark .zammad-chat .zammad-chat-message--agent {
+  background: var(--surface-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark .zammad-chat-modal .zammad-chat-welcome {
+  background: var(--surface-primary) !important;
+  color: var(--text-primary) !important;
+}

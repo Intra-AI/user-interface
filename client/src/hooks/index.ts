@@ -18,6 +18,7 @@ export * from './SSE';
 export * from './AuthContext';
 export * from './ScreenshotContext';
 export * from './ApiErrorBoundaryContext';
+export * from './ZammadChatContext';
 export * from './Endpoint';
 
 export type { TranslationKeys } from './useLocalize';

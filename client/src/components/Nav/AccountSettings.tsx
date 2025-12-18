@@ -8,9 +8,10 @@ import { useGetStartupConfig, useGetUserBalance, useGetUserStorageUsage } from '
 import StorageLimitDialog from '~/components/Files/StorageLimitDialog';
 import FilesView from '~/components/Chat/Input/Files/FilesView';
 import { useAuthContext } from '~/hooks/AuthContext';
-import { useLocalize, useHasAccess } from '~/hooks';
+import { useLocalize, useHasAccess, useZammadChat } from '~/hooks';
 import Settings from './Settings';
 import SupportModal from './SupportModal';
+import SupportChoiceModal from './SupportChoiceModal';
 import store from '~/store';
 
 function formatBytes(bytes: number, decimals = 2): string {
@@ -28,6 +29,7 @@ function AccountSettings() {
   const localize = useLocalize();
   const { user, isAuthenticated, logout } = useAuthContext();
   const { data: startupConfig } = useGetStartupConfig();
+  const { isAgentAvailable, openChat } = useZammadChat();
   const balanceQuery = useGetUserBalance({
     enabled: !!isAuthenticated && startupConfig?.balance?.enabled,
   });
@@ -37,6 +39,7 @@ function AccountSettings() {
   const [showSettings, setShowSettings] = useState(false);
   const [showFiles, setShowFiles] = useRecoilState(store.showFiles);
   const [showSupport, setShowSupport] = useRecoilState(store.showSupport);
+  const [showSupportChoice, setShowSupportChoice] = useRecoilState(store.showSupportChoice);
   const [storageLimitDialog, setStorageLimitDialog] = useRecoilState(store.showStorageLimitDialog);
 
   const hasHelpFaqAccess = useHasAccess({
@@ -48,6 +51,24 @@ function AccountSettings() {
     permissionType: PermissionTypes.FILE_UPLOAD,
     permission: Permissions.USE,
   });
+
+  const handleSupportClick = () => {
+    if (isAgentAvailable) {
+      // Show choice modal if agents are available
+      setShowSupportChoice(true);
+    } else {
+      // Show ticket form directly if no agents available
+      setShowSupport(true);
+    }
+  };
+
+  const handleOpenTicket = () => {
+    setShowSupport(true);
+  };
+
+  const handleOpenChat = () => {
+    openChat();
+  };
 
   return (
     <Select.SelectProvider>
@@ -141,7 +162,7 @@ function AccountSettings() {
         )}
         <Select.SelectItem
           value=""
-          onClick={() => setShowSupport(true)}
+          onClick={handleSupportClick}
           className="select-item text-sm"
         >
           <HelpCircle className="icon-md" aria-hidden="true" />
@@ -167,6 +188,14 @@ function AccountSettings() {
         </Select.SelectItem>
       </Select.SelectPopover>
       {showFiles && <FilesView open={showFiles} onOpenChange={setShowFiles} />}
+      {showSupportChoice && (
+        <SupportChoiceModal
+          open={showSupportChoice}
+          onOpenChange={setShowSupportChoice}
+          onOpenTicket={handleOpenTicket}
+          onOpenChat={handleOpenChat}
+        />
+      )}
       {showSupport && <SupportModal open={showSupport} onOpenChange={setShowSupport} />}
       {showSettings && <Settings open={showSettings} onOpenChange={setShowSettings} />}
       <StorageLimitDialog
