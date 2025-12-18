@@ -7,9 +7,10 @@ import { MyFilesModal } from '~/components/Chat/Input/Files/MyFilesModal';
 import { useGetStartupConfig, useGetUserBalance, useGetUserStorageUsage } from '~/data-provider';
 import StorageLimitDialog from '~/components/Files/StorageLimitDialog';
 import { useAuthContext } from '~/hooks/AuthContext';
-import { useLocalize, useHasAccess } from '~/hooks';
+import { useLocalize, useHasAccess, useZammadChat } from '~/hooks';
 import Settings from './Settings';
 import SupportModal from './SupportModal';
+import SupportChoiceModal from './SupportChoiceModal';
 import store from '~/store';
 
 function formatBytes(bytes: number, decimals = 2): string {
@@ -27,6 +28,7 @@ function AccountSettings() {
   const localize = useLocalize();
   const { user, isAuthenticated, logout } = useAuthContext();
   const { data: startupConfig } = useGetStartupConfig();
+  const { isAgentAvailable, openChat } = useZammadChat();
   const balanceQuery = useGetUserBalance({
     enabled: !!isAuthenticated && startupConfig?.balance?.enabled,
   });
@@ -36,6 +38,7 @@ function AccountSettings() {
   const [showSettings, setShowSettings] = useState(false);
   const [showFiles, setShowFiles] = useState(false);
   const [showSupport, setShowSupport] = useState(false);
+  const [showSupportChoice, setShowSupportChoice] = useState(false);
   const [storageLimitDialog, setStorageLimitDialog] = useState({ open: false, used: 0, limit: 0 });
   const accountSettingsButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -48,6 +51,24 @@ function AccountSettings() {
     permissionType: PermissionTypes.FILE_UPLOAD,
     permission: Permissions.USE,
   });
+
+  const handleSupportClick = () => {
+    if (isAgentAvailable) {
+      // Show choice modal if agents are available
+      setShowSupportChoice(true);
+    } else {
+      // Show ticket form directly if no agents available
+      setShowSupport(true);
+    }
+  };
+
+  const handleOpenTicket = () => {
+    setShowSupport(true);
+  };
+
+  const handleOpenChat = () => {
+    openChat();
+  };
 
   return (
     <Select.SelectProvider>
@@ -140,14 +161,8 @@ function AccountSettings() {
           </Select.SelectItem>
         )}
         <Select.SelectItem
-          value=""          onClick={() => setShowSupport(true)}
-          className="select-item text-sm"
-        >
-          <HelpCircle className="icon-md" aria-hidden="true" />
-          {localize('com_nav_support')}
-        </Select.SelectItem>
-        <Select.SelectItem
-          value=""          onClick={() => setShowSupport(true)}
+          value=""
+          onClick={handleSupportClick}
           className="select-item text-sm"
         >
           <HelpCircle className="icon-md" aria-hidden="true" />
@@ -177,6 +192,14 @@ function AccountSettings() {
           open={showFiles}
           onOpenChange={setShowFiles}
           triggerRef={accountSettingsButtonRef}
+        />
+      )}
+      {showSupportChoice && (
+        <SupportChoiceModal
+          open={showSupportChoice}
+          onOpenChange={setShowSupportChoice}
+          onOpenTicket={handleOpenTicket}
+          onOpenChat={handleOpenChat}
         />
       )}
       {showSupport && <SupportModal open={showSupport} onOpenChange={setShowSupport} />}

@@ -1,0 +1,19 @@
+# Web Search Configuration über Environment-Variablen
+# Diese Variablen müssen zur .env hinzugefügt werden
+
+# Bereits in .env:
+# SEARCH_ENABLED=true
+# SEARXNG_INSTANCE_URL=http://searxng:8080
+# RERANKER_URL=http://reranker:80
+
+# Zusätzlich benötigt:
+SEARCH_PROVIDER=searxng
+SCRAPER_PROVIDER=internal
+
+# Optional für später (wenn Reranker funktioniert):
+# RERANKER_PROVIDER=custom
+
+# Web Search Limits
+WEB_SEARCH_MAX_RESULTS=10
+WEB_SEARCH_MAX_URLS_TO_VISIT=5
+WEB_SEARCH_TIMEOUT=10000

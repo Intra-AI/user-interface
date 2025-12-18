@@ -1,0 +1,47 @@
+# SearXNG Configuration for LibreChat
+# This enables JSON output format required by LibreChat
+
+use_default_settings: true
+
+server:
+  # Secret key for instance security
+  # IMPORTANT: Change this to a random secure string in production
+  secret_key: "ChangeMeToRandomSecretKey"
+  
+  # Bind to all interfaces within container
+  bind_address: "0.0.0.0"
+  
+  # Port configuration (internal)
+  port: 8080
+  
+  # Base URL for the instance
+  base_url: "http://localhost:8090/"
+
+search:
+  # JSON is required for LibreChat integration
+  formats:
+    - html
+    - json
+
+  safe_search: 1
+  autocomplete: "google"
+  default_lang: "de-DE"
+
+ui:
+  default_theme: "simple"
+  infinite_scroll: true
+  results_on_new_tab: false
+
+# Enable engines for search
+engines:
+  - name: google
+    disabled: false
+    
+  - name: duckduckgo
+    disabled: false
+    
+  - name: wikipedia
+    disabled: false
+    
+  - name: bing
+    disabled: false

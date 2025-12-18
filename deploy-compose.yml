@@ -104,6 +104,37 @@ services:
     networks:
       - internal
 
+  # SearXNG: Private, DSGVO-konforme Suchmaschine für Web Search
+  searxng:
+    container_name: librechat-searxng
+    image: searxng/searxng:latest
+    restart: always
+    ports:
+      - "8090:8080"  # External: 8090, Internal: 8080 (Zammad nutzt bereits 8080)
+    volumes:
+      - ./searxng:/etc/searxng:rw
+    environment:
+      - SEARXNG_BASE_URL=http://localhost:8090/
+      - SEARXNG_SECRET=${SEARXNG_SECRET}
+    networks:
+      - internal
+
+  # Reranker: Jina AI Reranker v2 mit Hugging Face TEI (CPU-optimiert)
+  reranker:
+    container_name: librechat-reranker
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
+    restart: always
+    ports:
+      - "8001:80"  # External: 8001, Internal: 80 (TEI default)
+    environment:
+      - HUGGING_FACE_HUB_URL=https://huggingface.co
+    command: --model-id jinaai/jina-reranker-v2-base-multilingual --port 80
+    volumes:
+      - ./data/reranker:/data  # Model cache
+    networks:
+      - internal
+    shm_size: 1g
+
 networks:
   internal:
     driver: bridge
