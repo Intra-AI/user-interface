@@ -26,6 +26,14 @@ search:
   safe_search: 1
   autocomplete: "google"
   default_lang: "de-DE"
+  
+  # Block Chinese domains
+  ban_time_on_fail: 0
+  max_ban_time_on_fail: 0
+  
+  # Domains to exclude from search results
+  # Block Chinese sites that are causing timeout issues
+  banned_plugins: []
 
 ui:
   default_theme: "simple"
@@ -45,3 +53,15 @@ engines:
     
   - name: bing
     disabled: false
+
+# Hostnames plugin to filter out unwanted domains
+hostnames:
+  # Block problematic Chinese domains
+  remove:
+    - '(.*\.)?baidu\.com$'
+    - '(.*\.)?zhihu\.com$'
+    - '(.*\.)?zhidao\.baidu\.com$'
+    - '(.*\.)?baike\.baidu\.com$'
+  # Only allow these specific domains (optional - comment out to allow all except removed)
+  # replace:
+  #   - '(.*\.)?example\.com$'
