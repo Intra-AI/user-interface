@@ -1,6 +1,7 @@
 const { logger } = require('~/config');
 const { deleteNullOrEmptyConversations, deleteOldConversations } = require('~/models/Conversation');
 const { cleanupOldAuditLogs } = require('~/models/AuditLog');
+const { deleteOldFiles } = require('~/models/File');
 
 const cleanup = async () => {
   try {
@@ -15,22 +16,26 @@ const cleanup = async () => {
 let cleanupInterval = null;
 
 /**
- * Starts a scheduled task that deletes old conversations every specified interval.
+ * Starts a scheduled task that deletes old conversations and files every specified interval.
  * Also runs DSGVO audit log cleanup (3 years retention).
  * @param {number} intervalMinutes - How often to run the cleanup (in minutes)
- * @param {number} ageMinutes - Delete conversations older than this (in minutes)
+ * @param {number} ageMinutes - Delete conversations and files older than this (in minutes)
  */
-const startScheduledCleanup = (intervalMinutes = 5, ageMinutes = 5, retentionYears = 3) => {
+const startScheduledCleanup = (intervalMinutes = 10, ageMinutes = 10, retentionYears = 3) => {
   if (cleanupInterval) {
     logger.warn('[startScheduledCleanup] Cleanup interval already running');
     return;
   }
 
-  logger.info(`[startScheduledCleanup] Starting scheduled cleanup: running every ${intervalMinutes} minutes, deleting chats older than ${ageMinutes} minutes`);
+  logger.info(`[startScheduledCleanup] Starting scheduled cleanup: running every ${intervalMinutes} minutes, deleting chats and files older than ${ageMinutes} minutes`);
 
   // Run immediately on startup
   deleteOldConversations(ageMinutes).catch(error => {
-    logger.error('[startScheduledCleanup] Error during initial cleanup', error);
+    logger.error('[startScheduledCleanup] Error during initial conversation cleanup', error);
+  });
+
+  deleteOldFiles(ageMinutes).catch(error => {
+    logger.error('[startScheduledCleanup] Error during initial file cleanup', error);
   });
 
   // Run audit log cleanup immediately (3 years retention)
@@ -42,6 +47,7 @@ const startScheduledCleanup = (intervalMinutes = 5, ageMinutes = 5, retentionYea
   cleanupInterval = setInterval(async () => {
     try {
       await deleteOldConversations(ageMinutes);
+      await deleteOldFiles(ageMinutes);
       // DSGVO: Audit Logs älter als 3 Jahre löschen
       await cleanupOldAuditLogs(retentionYears);
     } catch (error) {

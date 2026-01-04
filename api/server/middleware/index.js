@@ -4,6 +4,7 @@ const validateImageRequest = require('./validateImageRequest');
 const buildEndpointOption = require('./buildEndpointOption');
 const validateMessageReq = require('./validateMessageReq');
 const checkDomainAllowed = require('./checkDomainAllowed');
+const checkStorageLimit = require('./checkStorageLimit');
 const concurrentLimiter = require('./concurrentLimiter');
 const validateEndpoint = require('./validateEndpoint');
 const requireLocalAuth = require('./requireLocalAuth');
@@ -47,6 +48,7 @@ module.exports = {
   configMiddleware,
   concurrentLimiter,
   checkDomainAllowed,
+  checkStorageLimit,
   validateMessageReq,
   buildEndpointOption,
   validateRegistration,

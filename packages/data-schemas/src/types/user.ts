@@ -31,6 +31,8 @@ export interface IUser extends Document {
   }>;
   expiresAt?: Date;
   termsAccepted?: boolean;
+  initialPasswordReset?: boolean;
+  initialTwoFactorSetup?: boolean;
   personalization?: {
     memories?: boolean;
   };
@@ -63,6 +65,8 @@ export interface UpdateUserRequest {
   plugins?: string[];
   twoFactorEnabled?: boolean;
   termsAccepted?: boolean;
+  initialPasswordReset?: boolean;
+  initialTwoFactorSetup?: boolean;
   personalization?: {
     memories?: boolean;
   };

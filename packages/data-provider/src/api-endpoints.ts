@@ -43,6 +43,9 @@ export const health = () => `${BASE_URL}/health`;
 export const user = () => `${BASE_URL}/api/user`;
 
 export const balance = () => `${BASE_URL}/api/balance`;
+export const storage = () => `${BASE_URL}/api/storage`;
+export const deleteOldFiles = () => `${BASE_URL}/api/files/old`;
+export const support = () => `${BASE_URL}/api/support`;
 
 export const userPlugins = () => `${BASE_URL}/api/user/plugins`;
 
@@ -319,6 +322,9 @@ export const addTagToConversation = (conversationId: string) =>
 
 export const userTerms = () => `${BASE_URL}/api/user/terms`;
 export const acceptUserTerms = () => `${BASE_URL}/api/user/terms/accept`;
+export const securityStatus = () => `${BASE_URL}/api/user/security-status`;
+export const initialPasswordReset = () => `${BASE_URL}/api/user/initial-password-reset`;
+export const complete2FASetup = () => `${BASE_URL}/api/user/initial-2fa-setup/complete`;
 export const banner = () => `${BASE_URL}/api/banner`;
 
 // Message Feedback

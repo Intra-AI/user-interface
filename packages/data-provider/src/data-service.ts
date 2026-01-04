@@ -91,6 +91,31 @@ export function getUserBalance(): Promise<t.TBalanceResponse> {
   return request.get(endpoints.balance());
 }
 
+export function getUserStorageUsage(): Promise<f.TStorageUsage> {
+  return request.get(endpoints.storage());
+}
+
+export function deleteOldFiles(body: f.TDeleteOldFilesBody): Promise<f.TDeleteOldFilesResponse> {
+  return request.deleteWithOptions(endpoints.deleteOldFiles(), { data: body });
+}
+
+export interface TSupportRequest {
+  subject: string;
+  category: string;
+  priority: string;
+  description: string;
+}
+
+export interface TSupportResponse {
+  success: boolean;
+  ticketId?: string;
+  message?: string;
+}
+
+export function submitSupportRequest(data: TSupportRequest): Promise<TSupportResponse> {
+  return request.post(endpoints.support(), data);
+}
+
 export const updateTokenCount = (text: string) => {
   return request.post(endpoints.tokenizer(), { arg: text });
 };
@@ -853,6 +878,18 @@ export function getUserTerms(): Promise<t.TUserTermsResponse> {
 
 export function acceptTerms(): Promise<t.TAcceptTermsResponse> {
   return request.post(endpoints.acceptUserTerms());
+}
+
+export function getSecurityStatus(): Promise<t.TSecurityStatusResponse> {
+  return request.get(endpoints.securityStatus());
+}
+
+export function submitInitialPasswordReset(data: t.TInitialPasswordReset): Promise<t.TAcceptTermsResponse> {
+  return request.post(endpoints.initialPasswordReset(), data);
+}
+
+export function completeInitial2FASetup(): Promise<t.TAcceptTermsResponse> {
+  return request.post(endpoints.complete2FASetup());
 }
 
 export function getBanner(): Promise<t.TBannerResponse> {

@@ -25,6 +25,8 @@ const auditLogSchema: Schema<IAuditLog> = new Schema(
         'USER_DELETED',         // Account gelöscht (Art. 17 DSGVO)
         'PERSONAL_DATA_CHANGED', // Email/Name/Passwort geändert
         'TERMS_ACCEPTED',       // Terms & Conditions akzeptiert (Art. 7 DSGVO)
+        'INITIAL_PASSWORD_RESET', // Initial password reset completed
+        'INITIAL_2FA_SETUP',      // Initial 2FA setup completed
       ],
       index: true,
     },

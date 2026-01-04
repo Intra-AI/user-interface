@@ -48,7 +48,9 @@ export enum QueryKeys {
   conversationTags = 'conversationTags',
   health = 'health',
   userTerms = 'userTerms',
+  securityStatus = 'securityStatus',
   banner = 'banner',
+  storageUsage = 'storageUsage',
   /* Memories */
   memories = 'memories',
   principalSearch = 'principalSearch',
@@ -66,6 +68,7 @@ export const DynamicQueryKeys = {
 export enum MutationKeys {
   fileUpload = 'fileUpload',
   fileDelete = 'fileDelete',
+  deleteOldFiles = 'deleteOldFiles',
   attachExistingFiles = 'attachExistingFiles',
   updatePreset = 'updatePreset',
   deletePreset = 'deletePreset',
@@ -88,4 +91,5 @@ export enum MutationKeys {
   enableTwoFactor = 'enableTwoFactor',
   verifyTwoFactor = 'verifyTwoFactor',
   updateMemoryPreferences = 'updateMemoryPreferences',
+  submitSupportRequest = 'submitSupportRequest',
 }

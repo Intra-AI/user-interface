@@ -1,15 +1,28 @@
 import { useState, memo } from 'react';
 import { useRecoilState } from 'recoil';
 import * as Select from '@ariakit/react/select';
-import { FileText, LogOut } from 'lucide-react';
+import { FileText, LogOut, HardDrive, HelpCircle } from 'lucide-react';
 import { PermissionTypes, Permissions } from 'librechat-data-provider';
 import { LinkIcon, GearIcon, DropdownMenuSeparator, Avatar } from '@librechat/client';
-import { useGetStartupConfig, useGetUserBalance } from '~/data-provider';
+import { useGetStartupConfig, useGetUserBalance, useGetUserStorageUsage } from '~/data-provider';
+import StorageLimitDialog from '~/components/Files/StorageLimitDialog';
 import FilesView from '~/components/Chat/Input/Files/FilesView';
 import { useAuthContext } from '~/hooks/AuthContext';
 import { useLocalize, useHasAccess } from '~/hooks';
 import Settings from './Settings';
+import SupportModal from './SupportModal';
 import store from '~/store';
+
+function formatBytes(bytes: number, decimals = 2): string {
+  if (bytes === 0) {
+    return '0 Bytes';
+  }
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
 
 function AccountSettings() {
   const localize = useLocalize();
@@ -18,8 +31,13 @@ function AccountSettings() {
   const balanceQuery = useGetUserBalance({
     enabled: !!isAuthenticated && startupConfig?.balance?.enabled,
   });
+  const storageQuery = useGetUserStorageUsage({
+    enabled: !!isAuthenticated,
+  });
   const [showSettings, setShowSettings] = useState(false);
   const [showFiles, setShowFiles] = useRecoilState(store.showFiles);
+  const [showSupport, setShowSupport] = useRecoilState(store.showSupport);
+  const [storageLimitDialog, setStorageLimitDialog] = useRecoilState(store.showStorageLimitDialog);
 
   const hasHelpFaqAccess = useHasAccess({
     permissionType: PermissionTypes.HELP_FAQ,
@@ -71,6 +89,36 @@ function AccountSettings() {
             <DropdownMenuSeparator />
           </>
         )}
+        {storageQuery.data != null && (
+          <>
+            <div className="text-token-text-secondary ml-3 mr-2 py-2 text-sm" role="note">
+              <div className="flex items-center gap-1">
+                <HardDrive className="h-3 w-3" />
+                <span>{localize('com_nav_storage')}:</span>
+              </div>
+              <div className="mt-1 text-xs">
+                {formatBytes(storageQuery.data.used)} / {formatBytes(storageQuery.data.limit)}{' '}
+                <span className={storageQuery.data.percentage >= 90 ? 'text-red-500' : ''}>
+                  ({storageQuery.data.percentage}%)
+                </span>
+              </div>
+              {/* Progress bar */}
+              <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                <div
+                  className={`h-full rounded-full transition-all ${
+                    storageQuery.data.percentage >= 90
+                      ? 'bg-red-500'
+                      : storageQuery.data.percentage >= 70
+                        ? 'bg-yellow-500'
+                        : 'bg-green-500'
+                  }`}
+                  style={{ width: `${Math.min(storageQuery.data.percentage, 100)}%` }}
+                />
+              </div>
+            </div>
+            <DropdownMenuSeparator />
+          </>
+        )}
         {hasFileManagerAccess && (
         <Select.SelectItem
           value=""
@@ -93,6 +141,14 @@ function AccountSettings() {
         )}
         <Select.SelectItem
           value=""
+          onClick={() => setShowSupport(true)}
+          className="select-item text-sm"
+        >
+          <HelpCircle className="icon-md" aria-hidden="true" />
+          {localize('com_nav_support')}
+        </Select.SelectItem>
+        <Select.SelectItem
+          value=""
           onClick={() => setShowSettings(true)}
           className="select-item text-sm"
         >
@@ -111,7 +167,14 @@ function AccountSettings() {
         </Select.SelectItem>
       </Select.SelectPopover>
       {showFiles && <FilesView open={showFiles} onOpenChange={setShowFiles} />}
+      {showSupport && <SupportModal open={showSupport} onOpenChange={setShowSupport} />}
       {showSettings && <Settings open={showSettings} onOpenChange={setShowSettings} />}
+      <StorageLimitDialog
+        open={storageLimitDialog.open}
+        onOpenChange={(open) => setStorageLimitDialog({ ...storageLimitDialog, open })}
+        used={storageLimitDialog.used}
+        limit={storageLimitDialog.limit}
+      />
     </Select.SelectProvider>
   );
 }

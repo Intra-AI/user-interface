@@ -10,6 +10,7 @@ services:
       - meilisearch
       - rag_api
     restart: always
+    user: "${UID}:${GID}"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     env_file:
@@ -17,7 +18,7 @@ services:
     environment:
       - HOST=0.0.0.0
       - NODE_ENV=production
-      - MONGO_URI=mongodb://mongodb:27017/LibreChat
+      - MONGO_URI=${MONGO_URI}
       - MEILI_HOST=http://meilisearch:7700
       - RAG_PORT=${RAG_PORT:-8000}
       - RAG_API_URL=http://rag_api:${RAG_PORT:-8000}
@@ -40,7 +41,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.librechat-http.rule=Host(`chat.intra-ai.de`)"
       - "traefik.http.routers.librechat-http.entrypoints=web"
-      - "traefik.http.routers.librechat-http.middlewares=redirect-to-https"
+      - "traefik.http.routers.librechat-http.middlewares=redirect-to-https@file"
       - "traefik.http.routers.librechat.rule=Host(`chat.intra-ai.de`)"
       - "traefik.http.routers.librechat.entrypoints=websecure"
       - "traefik.http.routers.librechat.tls.certresolver=le"
@@ -50,10 +51,14 @@ services:
   mongodb:
     container_name: chat-mongodb
     image: mongo:7
-    restart: always
+    restart: unless-stopped
     volumes:
-      - mongodb_data:/data/db
-    command: mongod --noauth
+      - /mnt/mongo_secure/data/db:/data/db
+    command: mongod --auth
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
     networks:
       - internal
 
@@ -99,6 +104,164 @@ services:
     networks:
       - internal
 
+  searxng:
+    container_name: librechat-searxng
+    image: searxng/searxng:latest
+    restart: always
+    ports:
+      - "8090:8080"
+    volumes:
+      - ./searxng:/etc/searxng:rw
+    environment:
+      - SEARXNG_BASE_URL=http://localhost:8090/
+      - SEARXNG_SECRET=${SEARXNG_SECRET}
+    networks:
+      - internal
+
+  # reranker:
+  #   container_name: librechat-reranker
+  #   image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
+  #   restart: always
+  #   ports:
+  #     - "8001:80"
+  #   environment:
+  #     - HUGGING_FACE_HUB_URL=https://huggingface.co
+  #   command: --model-id jinaai/jina-reranker-v2-base-multilingual --port 80
+  #   volumes:
+  #     - ./data/reranker:/data
+  #   networks:
+  #     - internal
+  #   shm_size: 1g
+
+
+  ##IMPORTANT NOTE: Clone Firecrawl repository next to LibreChat repository for this to work##
+  # Firecrawl Services
+  firecrawl-playwright-service:
+    container_name: firecrawl-playwright-service
+    build: ./firecrawl/apps/playwright-service-ts
+    restart: always
+    environment:
+      PORT: 3000
+      PROXY_SERVER: ${PROXY_SERVER}
+      PROXY_USERNAME: ${PROXY_USERNAME}
+      PROXY_PASSWORD: ${PROXY_PASSWORD}
+      BLOCK_MEDIA: ${BLOCK_MEDIA}
+      MAX_CONCURRENT_PAGES: ${CRAWL_CONCURRENT_REQUESTS:-10}
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        compress: "true"
+    tmpfs:
+      - /tmp/.cache:noexec,nosuid,size=1g
+    networks:
+      - internal
+
+  firecrawl-api:
+    container_name: firecrawl-api
+    build: ./firecrawl/apps/api
+    restart: always
+    depends_on:
+      firecrawl-redis:
+        condition: service_started
+      firecrawl-playwright-service:
+        condition: service_started
+      firecrawl-rabbitmq:
+        condition: service_healthy
+      firecrawl-nuq-postgres:
+        condition: service_started
+    environment:
+      - HOST=0.0.0.0
+      - PORT=3002
+      - REDIS_URL=redis://firecrawl-redis:6379
+      - REDIS_RATE_LIMIT_URL=redis://firecrawl-redis:6379
+      - PLAYWRIGHT_MICROSERVICE_URL=http://firecrawl-playwright-service:3000/scrape
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-postgres}
+      - POSTGRES_HOST=firecrawl-nuq-postgres
+      - POSTGRES_PORT=5432
+      - USE_DB_AUTHENTICATION=false
+      - NUM_WORKERS_PER_QUEUE=${NUM_WORKERS_PER_QUEUE:-8}
+      - CRAWL_CONCURRENT_REQUESTS=${CRAWL_CONCURRENT_REQUESTS:-10}
+      - MAX_CONCURRENT_JOBS=${MAX_CONCURRENT_JOBS:-5}
+      - BROWSER_POOL_SIZE=${BROWSER_POOL_SIZE:-5}
+      - NUQ_RABBITMQ_URL=amqp://firecrawl-rabbitmq:5672
+      - ENV=local
+    ports:
+      - "3002:3002"
+    command: node dist/src/harness.js --start-docker
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 8G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        compress: "true"
+    networks:
+      - internal
+
+  firecrawl-redis:
+    container_name: firecrawl-redis
+    image: redis:alpine
+    restart: always
+    command: redis-server --bind 0.0.0.0
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+        compress: "true"
+    networks:
+      - internal
+
+  firecrawl-rabbitmq:
+    container_name: firecrawl-rabbitmq
+    image: rabbitmq:3-management
+    restart: always
+    command: rabbitmq-server
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+        compress: "true"
+    networks:
+      - internal
+
+  firecrawl-nuq-postgres:
+    container_name: firecrawl-nuq-postgres
+    build: ./firecrawl/apps/nuq-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        compress: "true"
+    networks:
+      - internal
+
 networks:
   internal:
     driver: bridge
@@ -106,5 +269,4 @@ networks:
     external: true
 
 volumes:
-  mongodb_data:
   pgdata2:

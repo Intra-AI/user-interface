@@ -190,6 +190,59 @@ export const useDeleteFilesMutation = (
   });
 };
 
+export const useDeleteOldFilesMutation = (
+  _options?: t.DeleteOldFilesMutationOptions,
+): UseMutationResult<
+  t.TDeleteOldFilesResponse,
+  unknown,
+  t.TDeleteOldFilesBody,
+  unknown
+> => {
+  const queryClient = useQueryClient();
+  const { showToast } = useToastContext();
+  const localize = useLocalize();
+  const { onSuccess, onError, ...options } = _options || {};
+
+  return useMutation([MutationKeys.deleteOldFiles], {
+    mutationFn: (body: t.TDeleteOldFilesBody) => dataService.deleteOldFiles(body),
+    ...options,
+    onSuccess: (data, vars, context) => {
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries([QueryKeys.files]);
+      queryClient.invalidateQueries([QueryKeys.storageUsage]);
+
+      showToast({
+        message: localize('com_nav_files_deleted_success', {
+          count: data.deletedCount.toString(),
+          size: formatBytes(data.freedBytes),
+        }),
+        status: 'success',
+      });
+
+      onSuccess?.(data, vars, context);
+    },
+    onError: (error, vars, context) => {
+      showToast({
+        message: localize('com_error_delete_old_files'),
+        status: 'error',
+      });
+      onError?.(error, vars, context);
+    },
+  });
+};
+
+// Helper function for formatting bytes
+function formatBytes(bytes: number, decimals = 2): string {
+  if (bytes === 0) {
+    return '0 Bytes';
+  }
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
 export const useAttachExistingFilesMutation = (
   _options?: t.UploadMutationOptions,
 ): UseMutationResult<

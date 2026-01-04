@@ -188,3 +188,27 @@ export type DeleteMutationOptions = {
   onMutate?: (variables: DeleteFilesBody) => void | Promise<unknown>;
   onError?: (error: unknown, variables: DeleteFilesBody, context?: unknown) => void;
 };
+
+/* Storage types */
+export type TStorageUsage = {
+  used: number;
+  limit: number;
+  percentage: number;
+  fileCount: number;
+};
+
+export type TDeleteOldFilesBody = {
+  olderThan: 'day' | 'week' | '4weeks' | 'all';
+};
+
+export type TDeleteOldFilesResponse = {
+  message: string;
+  deletedCount: number;
+  freedBytes: number;
+};
+
+export type DeleteOldFilesMutationOptions = {
+  onSuccess?: (data: TDeleteOldFilesResponse, variables: TDeleteOldFilesBody, context?: unknown) => void;
+  onMutate?: (variables: TDeleteOldFilesBody) => void | Promise<unknown>;
+  onError?: (error: unknown, variables: TDeleteOldFilesBody, context?: unknown) => void;
+};

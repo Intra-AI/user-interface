@@ -22,7 +22,7 @@ import useLocalize, { TranslationKeys } from '~/hooks/useLocalize';
 import { useDelayedUploadToast } from './useDelayedUploadToast';
 import { processFileForUpload } from '~/utils/heicConverter';
 import { useChatContext } from '~/Providers/ChatContext';
-import { ephemeralAgentByConvoId } from '~/store';
+import { ephemeralAgentByConvoId, showStorageLimitDialog } from '~/store';
 import { logger, validateFiles } from '~/utils';
 import useClientResize from './useClientResize';
 import useUpdateFiles from './useUpdateFiles';
@@ -46,6 +46,7 @@ const useFileHandling = (params?: UseFileHandling) => {
   const setEphemeralAgent = useSetRecoilState(
     ephemeralAgentByConvoId(conversation?.conversationId ?? Constants.NEW_CONVO),
   );
+  const setStorageLimitDialogState = useSetRecoilState(showStorageLimitDialog);
   const setError = (error: string) => setErrors((prevErrors) => [...prevErrors, error]);
   const { addFile, replaceFile, updateFileById, deleteFileById } = useUpdateFiles(
     params?.fileSetter ?? setFiles,
@@ -154,6 +155,17 @@ const useFileHandling = (params?: UseFileHandling) => {
         clearUploadTimer(file_id as string);
         deleteFileById(file_id as string);
 
+        // Check if this is a storage limit exceeded error
+        const responseData = error?.response?.data;
+        if (responseData?.code === 'STORAGE_LIMIT_EXCEEDED') {
+          setStorageLimitDialogState({
+            open: true,
+            used: responseData.used || 0,
+            limit: responseData.limit || 0,
+          });
+          return;
+        }
+
         let errorMessage = 'com_error_files_upload';
 
         if (error?.code === 'ERR_CANCELED') {
@@ -248,12 +260,15 @@ const useFileHandling = (params?: UseFileHandling) => {
   const loadImage = (extendedFile: ExtendedFile, preview: string) => {
     const img = new Image();
     img.onload = async () => {
-      // Check if current model is Llama (cannot process images)
+      // Check if current model cannot process images (Llama or GPT-OSS)
       const currentModel = conversation?.model ?? '';
-      const isLlamaModel = currentModel.includes('llama') || currentModel.includes('Llama');
+      const isNonVisionModel = 
+        currentModel.includes('llama') || 
+        currentModel.includes('Llama') ||
+        currentModel.includes('gpt-oss');
       
-      // If Llama model is selected, switch to vision-capable model automatically
-      if (isLlamaModel && setConversation && conversation) {
+      // If non-vision model is selected, switch to vision-capable model automatically
+      if (isNonVisionModel && setConversation && conversation) {
         // Create updated conversation with vision-capable model and spec
         const updatedConversation = {
           ...conversation,
@@ -268,7 +283,7 @@ const useFileHandling = (params?: UseFileHandling) => {
         
         // Show notification in German
         showToast({
-          message: 'Modell wurde zu Mistral gewechselt, da Llama keine Bilder verarbeiten kann',
+          message: 'Modell wurde zu Mistral gewechselt, da das gewählte Modell keine Bilder verarbeiten kann',
           status: 'info',
           duration: 4000,
         });

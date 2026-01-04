@@ -523,3 +523,17 @@ export const useUserTermsQuery = (
     ...config,
   });
 };
+
+export const useSecurityStatusQuery = (
+  config?: UseQueryOptions<t.TSecurityStatusResponse>,
+): QueryObserverResult<t.TSecurityStatusResponse> => {
+  return useQuery<t.TSecurityStatusResponse>(
+    [QueryKeys.securityStatus], 
+    () => dataService.getSecurityStatus(), 
+    {
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      ...config,
+    }
+  );
+};

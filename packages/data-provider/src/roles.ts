@@ -142,7 +142,7 @@ const defaultRolesSchema = z.object({
         [Permissions.USE]: z.boolean().default(false),
       }),
       [PermissionTypes.WEB_SEARCH]: webSearchPermissionsSchema.extend({
-        [Permissions.USE]: z.boolean().default(false),
+        [Permissions.USE]: z.boolean().default(true),
       }),
       [PermissionTypes.PEOPLE_PICKER]: peoplePickerPermissionsSchema.extend({
         [Permissions.VIEW_USERS]: z.boolean().default(false),
@@ -202,7 +202,7 @@ const defaultRolesSchema = z.object({
         [Permissions.USE]: z.boolean().default(false),
       }),
       [PermissionTypes.WEB_SEARCH]: webSearchPermissionsSchema.extend({
-        [Permissions.USE]: z.boolean().default(false),
+        [Permissions.USE]: z.boolean().default(true),
       }),
       [PermissionTypes.PEOPLE_PICKER]: peoplePickerPermissionsSchema.extend({
         [Permissions.VIEW_USERS]: z.boolean().default(false),

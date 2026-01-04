@@ -351,7 +351,7 @@ const resetPassword = async (userId, token, password) => {
   }
 
   const hash = bcrypt.hashSync(password, 10);
-  const user = await updateUser(userId, { password: hash });
+  const user = await updateUser(userId, { password: hash, initialPasswordReset: true });
 
   // DSGVO Audit Log: Password Changed
   await createAuditLog({
