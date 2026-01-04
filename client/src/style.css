@@ -1043,7 +1043,7 @@ pre {
   --tw-prose-body: #424242;
   --tw-prose-headings: #111827;
   --tw-prose-lead: #4b5563;
-  --tw-prose-links: #0066cc;
+  --tw-prose-links: #e83a35;
   --tw-prose-bold: #111827;
   --tw-prose-counters: #6b7280;
   --tw-prose-bullets: #d1d5db;
@@ -1286,7 +1286,7 @@ pre[class*='language-'] {
 .hljs-formula,
 .hljs-keyword,
 .hljs-literal {
-  color: #2e95d3;
+  color: #e83a35;
 }
 .hljs-addition,
 .hljs-attribute,
