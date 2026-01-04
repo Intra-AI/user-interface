@@ -1,4 +1,5 @@
 import React from 'react';
+import { SystemRoles } from 'librechat-data-provider';
 import DisplayUsernameMessages from './DisplayUsernameMessages';
 import DeleteAccount from './DeleteAccount';
 import Avatar from './Avatar';
@@ -33,9 +34,11 @@ function Account() {
           )}
         </>
       )}
-      <div className="pb-3">
-        <DeleteAccount />
-      </div>
+      {user?.role !== SystemRoles.USER && (
+        <div className="pb-3">
+          <DeleteAccount />
+        </div>
+      )}
     </div>
   );
 }
