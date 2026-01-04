@@ -1,6 +1,7 @@
 const { logger } = require('@librechat/data-schemas');
 const { webSearchKeys, extractWebSearchEnvVars, normalizeHttpError } = require('@librechat/api');
 const { createAuditLog } = require('~/models/AuditLog');
+const { isEnabled } = require('~/server/utils');
 const {
   getFiles,
   updateUser,
@@ -10,6 +11,7 @@ const {
   deleteMessages,
   deleteUserById,
   deleteAllUserSessions,
+  comparePassword,
 } = require('~/models');
 const { updateUserPluginAuth, deleteUserPluginAuth } = require('~/server/services/PluginService');
 const { updateUserPluginsService, deleteUserKey } = require('~/server/services/UserService');
@@ -296,6 +298,130 @@ const resendVerificationController = async (req, res) => {
   }
 };
 
+/**
+ * Get security requirements status for current user
+ */
+const getSecurityStatusController = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('+password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    const requirePasswordReset = isEnabled(process.env.REQUIRE_INITIAL_PASSWORD_RESET);
+    const require2FA = isEnabled(process.env.REQUIRE_INITIAL_2FA_SETUP);
+    
+    // Only require password reset if user has a password (local auth)
+    // Skip for social login users (OAuth, OIDC, SAML, etc.)
+    const hasLocalPassword = user.password && user.password.length > 0;
+    
+    res.status(200).json({
+      passwordResetRequired: requirePasswordReset && hasLocalPassword && !user.initialPasswordReset,
+      twoFactorRequired: require2FA && !user.initialTwoFactorSetup,
+      termsRequired: !user.termsAccepted,
+    });
+  } catch (error) {
+    logger.error('Error fetching security status:', error);
+    res.status(500).json({ message: 'Error fetching security status' });
+  }
+};
+
+/**
+ * Mark initial password reset as completed
+ */
+const initialPasswordResetController = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const user = await User.findById(req.user.id).select('+password');
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    // Check if user has a password (not a social login user)
+    if (!user.password || user.password.length === 0) {
+      return res.status(400).json({ 
+        message: 'No password set. This account uses social login and does not require password reset.' 
+      });
+    }
+    
+    // Verify current password
+    const isValid = await comparePassword(currentPassword, user.password);
+    if (!isValid) {
+      return res.status(401).json({ message: 'Current password is incorrect' });
+    }
+    
+    // Validate new password
+    if (!newPassword || newPassword.length < 8) {
+      return res.status(400).json({ message: 'New password must be at least 8 characters long' });
+    }
+    
+    // Hash and update new password
+    const bcrypt = require('bcrypt');
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+    
+    await User.findByIdAndUpdate(req.user.id, {
+      password: hashedPassword,
+      initialPasswordReset: true,
+    });
+    
+    // Audit log
+    await createAuditLog({
+      userId: user._id,
+      action: 'INITIAL_PASSWORD_RESET',
+      details: {
+        email: user.email,
+        completedAt: new Date().toISOString(),
+      },
+      req,
+      email: user.email,
+    });
+    
+    res.status(200).json({ message: 'Password reset successfully' });
+  } catch (error) {
+    logger.error('Error in initial password reset:', error);
+    res.status(500).json({ message: 'Error resetting password' });
+  }
+};
+
+/**
+ * Mark initial 2FA setup as completed (called after 2FA is enabled)
+ */
+const completeTwoFactorSetupController = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    if (!user.twoFactorEnabled) {
+      return res.status(400).json({ message: '2FA must be enabled first' });
+    }
+    
+    await User.findByIdAndUpdate(req.user.id, {
+      initialTwoFactorSetup: true,
+    });
+    
+    // Audit log
+    await createAuditLog({
+      userId: user._id,
+      action: 'INITIAL_2FA_SETUP',
+      details: {
+        email: user.email,
+        completedAt: new Date().toISOString(),
+      },
+      req,
+      email: user.email,
+    });
+    
+    res.status(200).json({ message: '2FA setup completed' });
+  } catch (error) {
+    logger.error('Error completing 2FA setup:', error);
+    res.status(500).json({ message: 'Error completing 2FA setup' });
+  }
+};
+
 module.exports = {
   getUserController,
   getTermsStatusController,
@@ -304,4 +430,7 @@ module.exports = {
   verifyEmailController,
   updateUserPluginsController,
   resendVerificationController,
+  getSecurityStatusController,
+  initialPasswordResetController,
+  completeTwoFactorSetupController,
 };

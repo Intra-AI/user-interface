@@ -1,12 +1,26 @@
 const { generate2FATempToken } = require('~/server/services/twoFactorService');
 const { setAuthTokens } = require('~/server/services/AuthService');
 const { createAuditLog } = require('~/models/AuditLog');
+const { isEnabled } = require('~/server/utils');
 const { logger } = require('~/config');
 
 const loginController = async (req, res) => {
   try {
     if (!req.user) {
       return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    // Check if initial password reset is required
+    const requirePasswordReset = isEnabled(process.env.REQUIRE_INITIAL_PASSWORD_RESET);
+    const hasLocalPassword = req.user.password && req.user.password.length > 0;
+    
+    if (requirePasswordReset && hasLocalPassword && !req.user.initialPasswordReset) {
+      // User needs to reset password - don't log them in, redirect to password reset
+      return res.status(200).json({ 
+        passwordResetRequired: true,
+        email: req.user.email,
+        message: 'Initial password reset required'
+      });
     }
 
     if (req.user.twoFactorEnabled) {

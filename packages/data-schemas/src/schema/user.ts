@@ -132,6 +132,14 @@ const userSchema = new Schema<IUser>(
       type: Boolean,
       default: false,
     },
+    initialPasswordReset: {
+      type: Boolean,
+      default: false,
+    },
+    initialTwoFactorSetup: {
+      type: Boolean,
+      default: false,
+    },
     personalization: {
       type: {
         memories: {

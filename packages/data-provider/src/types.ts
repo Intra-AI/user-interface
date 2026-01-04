@@ -392,6 +392,9 @@ export type TLoginResponse = {
   user?: TUser;
   twoFAPending?: boolean;
   tempToken?: string;
+  passwordResetRequired?: boolean;
+  email?: string;
+  message?: string;
 };
 
 export type TEnable2FAResponse = {
@@ -635,6 +638,18 @@ export type TUserTermsResponse = {
 
 export type TAcceptTermsResponse = {
   success: boolean;
+};
+
+export type TSecurityStatusResponse = {
+  passwordResetRequired: boolean;
+  twoFactorRequired: boolean;
+  termsRequired: boolean;
+};
+
+export type TInitialPasswordReset = {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
 };
 
 export type TBannerResponse = TBanner | null;

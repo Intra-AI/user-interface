@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
+import { QueryKeys } from 'librechat-data-provider';
 import type { ContextType } from '~/common';
 import {
   useSearchEnabled,
@@ -15,14 +17,22 @@ import {
   SetConvoProvider,
   FileMapContext,
 } from '~/Providers';
-import { useUserTermsQuery, useGetStartupConfig } from '~/data-provider';
-import { TermsAndConditionsModal } from '~/components/ui';
+import { 
+  useUserTermsQuery, 
+  useGetStartupConfig, 
+  useSecurityStatusQuery,
+} from '~/data-provider';
+import { 
+  TermsAndConditionsModal,
+  InitialTwoFactorModal 
+} from '~/components/ui';
 import { Nav, MobileNav } from '~/components/Nav';
 import { useHealthCheck } from '~/data-provider';
 import { Banner } from '~/components/Banners';
 
 export default function Root() {
   const [showTerms, setShowTerms] = useState(false);
+  const [showTwoFactor, setShowTwoFactor] = useState(false);
   const [bannerHeight, setBannerHeight] = useState(0);
   const [navVisible, setNavVisible] = useState(() => {
     const savedNavVisible = localStorage.getItem('navVisible');
@@ -30,6 +40,7 @@ export default function Root() {
   });
 
   const { isAuthenticated, logout } = useAuthContext();
+  const queryClient = useQueryClient();
 
   // Global health check - runs once per authenticated session
   useHealthCheck(isAuthenticated);
@@ -42,22 +53,43 @@ export default function Root() {
   const { data: termsData } = useUserTermsQuery({
     enabled: isAuthenticated && config?.interface?.termsOfService?.modalAcceptance === true,
   });
+  
+  // Query security status
+  const { data: securityStatus } = useSecurityStatusQuery({
+    enabled: isAuthenticated,
+  });
 
   useSearchEnabled(isAuthenticated);
 
+  // Determine what to show based on priority: Terms > 2FA
   useEffect(() => {
-    if (termsData) {
-      setShowTerms(!termsData.termsAccepted);
+    if (securityStatus) {
+      if (securityStatus.termsRequired && config?.interface?.termsOfService?.modalAcceptance) {
+        setShowTerms(true);
+        setShowTwoFactor(false);
+      } else if (securityStatus.twoFactorRequired) {
+        setShowTerms(false);
+        setShowTwoFactor(true);
+      } else {
+        setShowTerms(false);
+        setShowTwoFactor(false);
+      }
     }
-  }, [termsData]);
+  }, [securityStatus, config]);
 
   const handleAcceptTerms = () => {
     setShowTerms(false);
+    // Refetch security status to check next requirement
+    queryClient.invalidateQueries([QueryKeys.securityStatus]);
   };
 
   const handleDeclineTerms = () => {
     setShowTerms(false);
     logout('/login?redirect=false');
+  };
+
+  const handleTwoFactorComplete = () => {
+    setShowTwoFactor(false);
   };
 
   if (!isAuthenticated) {
@@ -82,6 +114,8 @@ export default function Root() {
               </div>
             </PromptGroupsProvider>
           </AgentsMapContext.Provider>
+          
+          {/* Security Modals */}
           {config?.interface?.termsOfService?.modalAcceptance === true && (
             <TermsAndConditionsModal
               open={showTerms}
@@ -92,6 +126,11 @@ export default function Root() {
               modalContent={config.interface.termsOfService.modalContent}
             />
           )}
+          
+          <InitialTwoFactorModal
+            open={showTwoFactor}
+            onComplete={handleTwoFactorComplete}
+          />
         </AssistantsMapContext.Provider>
       </FileMapContext.Provider>
     </SetConvoProvider>

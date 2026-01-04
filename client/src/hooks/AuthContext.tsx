@@ -82,7 +82,18 @@ const AuthContextProvider = ({
 
   const loginUser = useLoginUserMutation({
     onSuccess: (data: t.TLoginResponse) => {
-      const { user, token, twoFAPending, tempToken } = data;
+      const { user, token, twoFAPending, tempToken, passwordResetRequired, email } = data;
+      
+      // Check if password reset is required
+      if (passwordResetRequired && email) {
+        // Store email in session storage for password reset page
+        sessionStorage.setItem('passwordResetEmail', email);
+        sessionStorage.setItem('passwordResetRequired', 'true');
+        // Redirect to password reset page
+        navigate('/forgot-password', { replace: true });
+        return;
+      }
+      
       if (twoFAPending) {
         // Redirect to the two-factor authentication route.
         navigate(`/login/2fa?tempToken=${tempToken}`, { replace: true });

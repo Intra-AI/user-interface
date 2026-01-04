@@ -1041,3 +1041,32 @@ export const useAcceptTermsMutation = (
     onMutate: options?.onMutate,
   });
 };
+
+export const useInitialPasswordResetMutation = (
+  options?: t.AcceptTermsMutationOptions,
+): UseMutationResult<t.TAcceptTermsResponse, unknown, t.TInitialPasswordReset, unknown> => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    (data: t.TInitialPasswordReset) => dataService.submitInitialPasswordReset(data),
+    {
+      onSuccess: (data, variables, context) => {
+        queryClient.invalidateQueries([QueryKeys.securityStatus]);
+        options?.onSuccess?.(data, variables, context);
+      },
+      onError: options?.onError,
+    }
+  );
+};
+
+export const useCompleteInitial2FAMutation = (
+  options?: t.AcceptTermsMutationOptions,
+): UseMutationResult<t.TAcceptTermsResponse, unknown, void, unknown> => {
+  const queryClient = useQueryClient();
+  return useMutation(() => dataService.completeInitial2FASetup(), {
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries([QueryKeys.securityStatus]);
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: options?.onError,
+  });
+};

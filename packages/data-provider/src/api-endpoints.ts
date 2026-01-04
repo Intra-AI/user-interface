@@ -322,6 +322,9 @@ export const addTagToConversation = (conversationId: string) =>
 
 export const userTerms = () => `${BASE_URL}/api/user/terms`;
 export const acceptUserTerms = () => `${BASE_URL}/api/user/terms/accept`;
+export const securityStatus = () => `${BASE_URL}/api/user/security-status`;
+export const initialPasswordReset = () => `${BASE_URL}/api/user/initial-password-reset`;
+export const complete2FASetup = () => `${BASE_URL}/api/user/initial-2fa-setup/complete`;
 export const banner = () => `${BASE_URL}/api/banner`;
 
 // Message Feedback

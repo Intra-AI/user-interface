@@ -880,6 +880,18 @@ export function acceptTerms(): Promise<t.TAcceptTermsResponse> {
   return request.post(endpoints.acceptUserTerms());
 }
 
+export function getSecurityStatus(): Promise<t.TSecurityStatusResponse> {
+  return request.get(endpoints.securityStatus());
+}
+
+export function submitInitialPasswordReset(data: t.TInitialPasswordReset): Promise<t.TAcceptTermsResponse> {
+  return request.post(endpoints.initialPasswordReset(), data);
+}
+
+export function completeInitial2FASetup(): Promise<t.TAcceptTermsResponse> {
+  return request.post(endpoints.complete2FASetup());
+}
+
 export function getBanner(): Promise<t.TBannerResponse> {
   return request.get(endpoints.banner());
 }
