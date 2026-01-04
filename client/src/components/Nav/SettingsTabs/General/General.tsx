@@ -1,10 +1,11 @@
 import React, { useContext, useCallback } from 'react';
 import Cookies from 'js-cookie';
 import { useRecoilState } from 'recoil';
+import { SystemRoles } from 'librechat-data-provider';
 import { Dropdown, ThemeContext } from '@librechat/client';
 import ArchivedChats from './ArchivedChats';
 import ToggleSwitch from '../ToggleSwitch';
-import { useLocalize } from '~/hooks';
+import { useLocalize, useAuthContext } from '~/hooks';
 import store from '~/store';
 
 const toggleSwitchConfigs = [
@@ -28,6 +29,7 @@ const toggleSwitchConfigs = [
     switchId: 'hideSidePanel',
     hoverCardText: undefined,
     key: 'hideSidePanel',
+    hideForRoles: [SystemRoles.USER],
   },
 ];
 
@@ -129,6 +131,7 @@ export const LangSelector = ({
 
 function General() {
   const { theme, setTheme } = useContext(ThemeContext);
+  const { user } = useAuthContext();
 
   const [langcode, setLangcode] = useRecoilState(store.lang);
 
@@ -163,16 +166,22 @@ function General() {
       <div className="pb-3">
         <LangSelector langcode={langcode} onChange={changeLang} />
       </div>
-      {toggleSwitchConfigs.map((config) => (
-        <div key={config.key} className="pb-3">
-          <ToggleSwitch
-            stateAtom={config.stateAtom}
-            localizationKey={config.localizationKey}
-            hoverCardText={config.hoverCardText}
-            switchId={config.switchId}
-          />
-        </div>
-      ))}
+      {toggleSwitchConfigs.map((config) => {
+        const hideForRoles = (config as any).hideForRoles || [];
+        if (hideForRoles.includes(user?.role)) {
+          return null;
+        }
+        return (
+          <div key={config.key} className="pb-3">
+            <ToggleSwitch
+              stateAtom={config.stateAtom}
+              localizationKey={config.localizationKey}
+              hoverCardText={config.hoverCardText}
+              switchId={config.switchId}
+            />
+          </div>
+        );
+      })}
       <div className="pb-3">
         <ArchivedChats />
       </div>
