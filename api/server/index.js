@@ -68,7 +68,8 @@ const startServer = async () => {
     }
   }
 
-  app.get('/health', (_req, res) => res.status(200).send('OK'));
+  /* Health Check Route - Comprehensive SLA monitoring endpoint */
+  app.use('/health', routes.health);
 
   /* Middleware */
   app.use(noIndex);
