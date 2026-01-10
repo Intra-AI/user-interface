@@ -53,8 +53,8 @@ export default defineConfig(({ command }) => ({
       },
       includeAssets: [],
       manifest: {
-        name: 'Intra AI',
-        short_name: 'Intra AI',
+        name: 'Contiss AI',
+        short_name: 'Contiss AI',
         display: 'standalone',
         background_color: '#000000',
         theme_color: '#009688',
