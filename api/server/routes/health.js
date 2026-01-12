@@ -9,10 +9,11 @@ const router = express.Router();
 
 /**
  * Health check cache to prevent excessive external API calls
- * TTL: 30 seconds for IONOS and RAG API checks
+ * TTL: 5 minutes (300s) for IONOS to avoid rate limiting
+ * TTL: 30 seconds for RAG API checks
  */
 const healthCache = {
-  ionos: { data: null, timestamp: 0, ttl: 30000 },
+  ionos: { data: null, timestamp: 0, ttl: 300000 }, // 5 minutes for IONOS
   rag: { data: null, timestamp: 0, ttl: 30000 },
 };
 
