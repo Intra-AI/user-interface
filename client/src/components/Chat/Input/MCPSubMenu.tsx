@@ -1,7 +1,7 @@
 import React from 'react';
 import * as Ariakit from '@ariakit/react';
-import { ChevronRight } from 'lucide-react';
-import { PinIcon, MCPIcon } from '@librechat/client';
+import { ChevronRight, Wrench } from 'lucide-react';
+import { PinIcon } from '@librechat/client';
 import MCPServerStatusIcon from '~/components/MCP/MCPServerStatusIcon';
 import { useMCPServerManager } from '~/hooks/MCP/useMCPServerManager';
 import MCPConfigDialog from '~/components/MCP/MCPConfigDialog';
@@ -55,7 +55,7 @@ const MCPSubMenu = React.forwardRef<HTMLDivElement, MCPSubMenuProps>(
             }
           >
             <div className="flex items-center gap-2">
-              <MCPIcon className="icon-md" />
+              <Wrench className="icon-md" />
               <span>{placeholder || placeholderText}</span>
               <ChevronRight className="ml-auto h-3 w-3" />
             </div>

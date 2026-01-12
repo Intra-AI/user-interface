@@ -1045,7 +1045,7 @@
   "com_ui_mcp_oauth_cancelled": "OAuth login cancelled for {{0}}",
   "com_ui_mcp_oauth_timeout": "OAuth login timed out for {{0}}",
   "com_ui_mcp_server_not_found": "Server not found.",
-  "com_ui_mcp_servers": "MCP Servers",
+  "com_ui_mcp_servers": "Tools",
   "com_ui_mcp_update_var": "Update {{0}}",
   "com_ui_mcp_url": "MCP Server URL",
   "com_ui_medium": "Medium",
