@@ -925,7 +925,7 @@
   "com_ui_mcp_oauth_cancelled": "OAuth-Anmeldung für {{0}} abgebrochen.",
   "com_ui_mcp_oauth_timeout": "Zeitüberschreitung bei der OAuth-Anmeldung für {{0}}.",
   "com_ui_mcp_server_not_found": "Server nicht gefunden",
-  "com_ui_mcp_servers": "MCP Server",
+  "com_ui_mcp_servers": "Werkzeuge",
   "com_ui_mcp_update_var": "{{0}} aktualisieren",
   "com_ui_mcp_url": "MCP-Server-URL",
   "com_ui_medium": "Mittel",
