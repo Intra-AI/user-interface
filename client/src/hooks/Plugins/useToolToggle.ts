@@ -91,7 +91,8 @@ export function useToolToggle({
     }
   }, [ephemeralAgent, toolKey, setLocalStorageValue]);
 
-  const [isPinned, setIsPinned] = useLocalStorage<boolean>(`${localStorageKey}pinned`, false);
+  const defaultPinned = localStorageKey === LocalStorageKeys.PIN_WEB_SEARCH_ ? true : false;
+  const [isPinned, setIsPinned] = useLocalStorage<boolean>(`${localStorageKey}pinned`, defaultPinned);
 
   const handleChange = useCallback(
     ({ e, value }: { e?: React.ChangeEvent<HTMLInputElement>; value: ToolValue }) => {
