@@ -1,5 +1,5 @@
 import { useMemo, useCallback, useState, useEffect, useRef } from 'react';
-import { easings } from '@react-spring/web';
+import { useSprings, animated, easings } from '@react-spring/web';
 import { EModelEndpoint } from 'librechat-data-provider';
 import { BirthdayIcon, TooltipAnchor, SplitText } from '@librechat/client';
 import { useChatContext, useAgentsMapContext, useAssistantsMapContext } from '~/Providers';
@@ -7,6 +7,189 @@ import { useGetEndpointsQuery, useGetStartupConfig } from '~/data-provider';
 import ConvoIcon from '~/components/Endpoints/ConvoIcon';
 import { useLocalize, useAuthContext } from '~/hooks';
 import { getIconEndpoint, getEntity } from '~/utils';
+
+interface StyledChar {
+  char: string;
+  isHighlight: boolean;
+}
+
+function StyledSplitText({
+  text,
+  className,
+  highlightClassName,
+  highlightPattern,
+  delay = 50,
+  animationFrom = { opacity: 0, transform: 'translate3d(0,50px,0)' },
+  animationTo = { opacity: 1, transform: 'translate3d(0,0,0)' },
+  easing,
+  onLineCountChange,
+}: {
+  text: string;
+  className: string;
+  highlightClassName: string;
+  highlightPattern: RegExp | null;
+  delay?: number;
+  animationFrom?: { opacity: number; transform: string };
+  animationTo?: { opacity: number; transform: string };
+  easing?: (t: number) => number;
+  onLineCountChange?: (count: number) => void;
+}) {
+  const ref = useRef<HTMLParagraphElement>(null);
+  const [inView, setInView] = useState(false);
+
+  // Build styled characters array with highlight info
+  const styledChars = useMemo((): StyledChar[] => {
+    const result: StyledChar[] = [];
+    let remaining = text;
+    let lastIndex = 0;
+
+    // If no pattern, return all chars as non-highlighted
+    if (!highlightPattern) {
+      for (const char of text) {
+        result.push({ char, isHighlight: false });
+      }
+      return result;
+    }
+
+    // Reset regex
+    highlightPattern.lastIndex = 0;
+    let match;
+
+    while ((match = highlightPattern.exec(text)) !== null) {
+      // Add non-highlighted text before match
+      const beforeMatch = text.slice(lastIndex, match.index);
+      for (const char of beforeMatch) {
+        result.push({ char, isHighlight: false });
+      }
+      // Add highlighted text
+      for (const char of match[0]) {
+        result.push({ char, isHighlight: true });
+      }
+      lastIndex = match.index + match[0].length;
+    }
+
+    // Add remaining text
+    remaining = text.slice(lastIndex);
+    for (const char of remaining) {
+      result.push({ char, isHighlight: false });
+    }
+
+    return result;
+  }, [text, highlightPattern]);
+
+  // Split into words for proper wrapping
+  const words = useMemo(() => {
+    const wordList: { chars: StyledChar[]; hasSpace: boolean }[] = [];
+    let currentWord: StyledChar[] = [];
+
+    styledChars.forEach((sc) => {
+      if (sc.char === ' ') {
+        if (currentWord.length > 0) {
+          wordList.push({ chars: currentWord, hasSpace: true });
+          currentWord = [];
+        }
+      } else {
+        currentWord.push(sc);
+      }
+    });
+
+    if (currentWord.length > 0) {
+      wordList.push({ chars: currentWord, hasSpace: false });
+    }
+
+    return wordList;
+  }, [styledChars]);
+
+  const totalChars = styledChars.filter((sc) => sc.char !== ' ').length;
+
+  const [springs] = useSprings(
+    totalChars,
+    (i) => ({
+      from: animationFrom,
+      to: inView ? animationTo : animationFrom,
+      delay: i * delay,
+      config: { easing },
+    }),
+    [inView, text, delay, animationFrom, animationTo, easing],
+  );
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          if (ref.current) {
+            observer.unobserve(ref.current);
+          }
+        }
+      },
+      { threshold: 0, rootMargin: '0px' },
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (ref.current && inView && onLineCountChange) {
+      const element = ref.current;
+      setTimeout(() => {
+        const lineHeight =
+          parseInt(getComputedStyle(element).lineHeight) ||
+          parseInt(getComputedStyle(element).fontSize) * 1.2;
+        const height = element.offsetHeight;
+        const lines = Math.round(height / lineHeight);
+        onLineCountChange(lines);
+      }, 100);
+    }
+  }, [inView, text, onLineCountChange]);
+
+  // Pre-calculate the starting index for each word
+  const wordStartIndices = useMemo(() => {
+    const indices: number[] = [];
+    let runningIndex = 0;
+    words.forEach((word) => {
+      indices.push(runningIndex);
+      runningIndex += word.chars.length;
+    });
+    return indices;
+  }, [words]);
+
+  return (
+    <>
+      <span className="sr-only">{text}</span>
+      <p
+        ref={ref}
+        className={`split-parent inline overflow-hidden ${className}`}
+        style={{ textAlign: 'center', whiteSpace: 'normal', wordWrap: 'break-word' }}
+        aria-hidden="true"
+      >
+        {words.map((word, wordIndex) => (
+          <span key={wordIndex} style={{ display: 'inline-block', whiteSpace: 'nowrap' }}>
+            {word.chars.map((sc, letterIndex) => {
+              const springIndex = wordStartIndices[wordIndex] + letterIndex;
+              return (
+                <animated.span
+                  key={`${wordIndex}-${letterIndex}`}
+                  style={springs[springIndex]}
+                  className={`inline-block transform transition-opacity will-change-transform ${sc.isHighlight ? highlightClassName : ''}`}
+                >
+                  {sc.char}
+                </animated.span>
+              );
+            })}
+            {wordIndex < words.length - 1 && (
+              <span style={{ display: 'inline-block', width: '0.3em' }}>&nbsp;</span>
+            )}
+          </span>
+        ))}
+      </p>
+    </>
+  );
+}
 
 const containerClassName =
   'shadow-stroke relative flex h-full items-center justify-center rounded-full bg-white dark:bg-presentation dark:text-white text-black dark:after:shadow-none ';
@@ -143,6 +326,12 @@ export default function Landing({ centerFormOnLanding }: { centerFormOnLanding: 
       ? getGreeting()
       : getGreeting() + (user?.name ? ', ' + user.name : '');
 
+  const appName = startupConfig?.interface?.appName;
+  const highlightPattern = useMemo(
+    () => (appName ? new RegExp(`(${appName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi') : null),
+    [appName],
+  );
+
   return (
     <div
       className={`flex h-full transform-gpu flex-col items-center justify-center pb-16 transition-all duration-200 ${centerFormOnLanding ? 'max-h-full sm:max-h-0' : 'max-h-full'} ${getDynamicMargin}`}
@@ -188,19 +377,20 @@ export default function Landing({ centerFormOnLanding }: { centerFormOnLanding: 
               />
             </div>
           ) : (
-            <SplitText
-              key={`split-text-${greetingText}${user?.name ? '-user' : ''}`}
-              text={greetingText}
-              className={`${getTextSizeClass(greetingText)} font-medium text-text-primary`}
-              delay={50}
-              textAlign="center"
-              animationFrom={{ opacity: 0, transform: 'translate3d(0,50px,0)' }}
-              animationTo={{ opacity: 1, transform: 'translate3d(0,0,0)' }}
-              easing={easings.easeOutCubic}
-              threshold={0}
-              rootMargin="0px"
-              onLineCountChange={handleLineCountChange}
-            />
+            <div className="flex flex-wrap items-center justify-center">
+              <StyledSplitText
+                key={`styled-split-text-${greetingText}`}
+                text={greetingText}
+                className={`${getTextSizeClass(greetingText)} font-medium text-text-primary`}
+                highlightClassName="text-green-500"
+                highlightPattern={highlightPattern}
+                delay={50}
+                animationFrom={{ opacity: 0, transform: 'translate3d(0,50px,0)' }}
+                animationTo={{ opacity: 1, transform: 'translate3d(0,0,0)' }}
+                easing={easings.easeOutCubic}
+                onLineCountChange={handleLineCountChange}
+              />
+            </div>
           )}
         </div>
         {description && (
