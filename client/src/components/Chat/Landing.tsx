@@ -168,7 +168,7 @@ function StyledSplitText({
         aria-hidden="true"
       >
         {words.map((word, wordIndex) => (
-          <span key={wordIndex} style={{ display: 'inline-block', whiteSpace: 'nowrap' }}>
+          <span key={wordIndex} style={{ display: 'inline', whiteSpace: 'nowrap' }}>
             {word.chars.map((sc, letterIndex) => {
               const springIndex = wordStartIndices[wordIndex] + letterIndex;
               return (
@@ -181,9 +181,7 @@ function StyledSplitText({
                 </animated.span>
               );
             })}
-            {wordIndex < words.length - 1 && (
-              <span style={{ display: 'inline-block', width: '0.3em' }}>&nbsp;</span>
-            )}
+            {wordIndex < words.length - 1 && ' '}
           </span>
         ))}
       </p>
