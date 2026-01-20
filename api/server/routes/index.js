@@ -19,6 +19,7 @@ const models = require('./models');
 const convos = require('./convos');
 const config = require('./config');
 const agents = require('./agents');
+const health = require('./health');
 const roles = require('./roles');
 const oauth = require('./oauth');
 const files = require('./files');
@@ -43,6 +44,7 @@ module.exports = {
   share,
   banner,
   agents,
+  health,
   convos,
   search,
   config,
