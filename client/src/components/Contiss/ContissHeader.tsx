@@ -15,8 +15,6 @@ const ContissHeader: React.FC<ContissHeaderProps> = ({ className = '' }) => {
   // Map current language to locale for display
   const getLocaleFromLang = (language: string): string => {
     if (language.startsWith('de')) return 'de-DE';
-    if (language.startsWith('fr')) return 'fr-FR';
-    if (language.includes('GB')) return 'en-GB';
     if (language.startsWith('en')) return 'en-US';
     return 'de-DE';
   };
@@ -37,8 +35,6 @@ const ContissHeader: React.FC<ContissHeaderProps> = ({ className = '' }) => {
     const langMap: Record<string, string> = {
       'de-DE': 'de',
       'en-US': 'en',
-      'en-GB': 'en',
-      'fr-FR': 'fr',
     };
 
     const newLang = langMap[locale] || 'de';
@@ -52,10 +48,6 @@ const ContissHeader: React.FC<ContissHeaderProps> = ({ className = '' }) => {
         return '🇩🇪';
       case 'en-US':
         return '🇺🇸';
-      case 'en-GB':
-        return '🇬🇧';
-      case 'fr-FR':
-        return '🇫🇷';
       default:
         return '🏳️';
     }
@@ -67,7 +59,7 @@ const ContissHeader: React.FC<ContissHeaderProps> = ({ className = '' }) => {
         {/* Logo Section */}
         <div className="contiss-logo-section">
           <a
-            href="https://intra-ai.de"
+            href="https://contiss.de"
             className="contiss-logo-container"
             onClick={handleLogoClick}
             aria-label="Zurück"
@@ -114,24 +106,6 @@ const ContissHeader: React.FC<ContissHeaderProps> = ({ className = '' }) => {
                 title="English (United States)"
               >
                 <span className="contiss-flag">{getFlagForLocale('en-US')}</span>
-              </button>
-              <button
-                type="button"
-                className={`contiss-language-item ${selectedLocale === 'en-GB' ? 'selected' : ''}`}
-                onClick={() => selectLocale('en-GB')}
-                aria-label="English (United Kingdom)"
-                title="English (United Kingdom)"
-              >
-                <span className="contiss-flag">{getFlagForLocale('en-GB')}</span>
-              </button>
-              <button
-                type="button"
-                className={`contiss-language-item ${selectedLocale === 'fr-FR' ? 'selected' : ''}`}
-                onClick={() => selectLocale('fr-FR')}
-                aria-label="Français (France)"
-                title="Français (France)"
-              >
-                <span className="contiss-flag">{getFlagForLocale('fr-FR')}</span>
               </button>
             </div>
           )}
