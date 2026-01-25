@@ -23,7 +23,7 @@ const ContissHeader: React.FC<ContissHeaderProps> = ({ className = '' }) => {
 
   const handleLogoClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    window.open('https://intra-ai.de', '_blank');
+    window.open('https://lwk.contiss.de/csp/lwp/app/search/searchGlobal.csp?action=showSearchGlobal', '_blank');
   };
 
   const toggleLanguagePicker = () => {

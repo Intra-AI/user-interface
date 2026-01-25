@@ -35,6 +35,10 @@ export function useMCPServerManager({ conversationId }: { conversationId?: strin
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const mcpValuesRef = useRef(mcpValues);
 
+  // Track servers that have been recently verified/initialized successfully
+  // These should not be filtered out even if they appear disconnected (e.g., streamable-http servers)
+  const recentlyVerifiedServersRef = useRef<Set<string>>(new Set());
+
   // fixes the issue where OAuth flows would deselect all the servers except the one that is being authenticated on success
   useEffect(() => {
     mcpValuesRef.current = mcpValues;
@@ -109,7 +113,9 @@ export function useMCPServerManager({ conversationId }: { conversationId?: strin
     if (!mcpValues?.length) return;
 
     const connectedSelected = mcpValues.filter(
-      (serverName) => connectionStatus[serverName]?.connectionState === 'connected',
+      (serverName) =>
+        connectionStatus[serverName]?.connectionState === 'connected' ||
+        recentlyVerifiedServersRef.current.has(serverName),
     );
 
     if (connectedSelected.length !== mcpValues.length) {
@@ -170,6 +176,9 @@ export function useMCPServerManager({ conversationId }: { conversationId?: strin
               message: localize('com_ui_mcp_authenticated_success', { 0: serverName }),
               status: 'success',
             });
+
+            // Mark server as recently verified to prevent it from being filtered out
+            recentlyVerifiedServersRef.current.add(serverName);
 
             const currentValues = mcpValuesRef.current ?? [];
             if (!currentValues.includes(serverName)) {
@@ -254,6 +263,10 @@ export function useMCPServerManager({ conversationId }: { conversationId?: strin
               message: localize('com_ui_mcp_initialized_success', { 0: serverName }),
               status: 'success',
             });
+
+            // Mark server as recently verified to prevent it from being filtered out
+            // by the disconnected server check (important for streamable-http servers)
+            recentlyVerifiedServersRef.current.add(serverName);
 
             const currentValues = mcpValues ?? [];
             if (!currentValues.includes(serverName)) {
@@ -352,10 +365,21 @@ export function useMCPServerManager({ conversationId }: { conversationId?: strin
         }
 
         const serverStatus = connectionStatus[serverName];
-        if (serverStatus?.connectionState === 'connected') {
+        if (
+          serverStatus?.connectionState === 'connected' ||
+          recentlyVerifiedServersRef.current.has(serverName)
+        ) {
           connectedServers.push(serverName);
         } else {
           disconnectedServers.push(serverName);
+        }
+      });
+
+      // Clear servers from recently verified that are no longer selected
+      const selectedSet = new Set(serverNames);
+      recentlyVerifiedServersRef.current.forEach((serverName) => {
+        if (!selectedSet.has(serverName)) {
+          recentlyVerifiedServersRef.current.delete(serverName);
         }
       });
 
@@ -378,6 +402,8 @@ export function useMCPServerManager({ conversationId }: { conversationId?: strin
       const isCurrentlySelected = currentValues.includes(serverName);
 
       if (isCurrentlySelected) {
+        // Remove from recently verified when user manually deselects
+        recentlyVerifiedServersRef.current.delete(serverName);
         const filteredValues = currentValues.filter((name) => name !== serverName);
         setMCPValues(filteredValues);
       } else {
@@ -415,6 +441,9 @@ export function useMCPServerManager({ conversationId }: { conversationId?: strin
           auth: {},
         };
         updateUserPluginsMutation.mutate(payload);
+
+        // Remove from recently verified when auth is revoked
+        recentlyVerifiedServersRef.current.delete(targetName);
 
         const currentValues = mcpValues ?? [];
         const filteredValues = currentValues.filter((name) => name !== targetName);
