@@ -133,6 +133,9 @@ function ControlCombobox({
         store={select}
         gutter={4}
         portal
+        flip={true}
+        overflowPadding={56}
+        fitViewport={true}
         className={cn(
           'animate-popover z-50 overflow-hidden rounded-xl border border-border-light bg-surface-secondary shadow-lg',
         )}
@@ -149,7 +152,7 @@ function ControlCombobox({
             />
           </div>
         </div>
-        <div className="max-h-[300px] overflow-auto">
+        <div className="max-h-[min(300px,calc(100vh-180px))] overflow-auto">
           <Ariakit.ComboboxList store={combobox}>
             <SelectRenderer store={select} items={matches} itemSize={ROW_HEIGHT} overscan={5}>
               {({ value, icon, label, ...item }) => (

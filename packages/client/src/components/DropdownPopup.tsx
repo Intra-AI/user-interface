@@ -85,6 +85,9 @@ const Menu: React.FC<MenuProps> = ({
       finalFocus={finalFocus}
       unmountOnHide={unmountOnHide}
       preserveTabOrder={preserveTabOrder}
+      flip={true}
+      overflowPadding={56}
+      fitViewport={true}
       className={cn('popover-ui z-50', className)}
       {...props}
     >

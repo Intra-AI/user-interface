@@ -2573,7 +2573,8 @@ html {
 
 .popover-ui {
   display: flex;
-  max-height: min(var(--popover-available-height, 1700px), 1700px);
+  /* Account for Contiss header (56px) and footer (40px) = 96px + padding */
+  max-height: min(var(--popover-available-height, calc(100vh - 112px)), calc(100vh - 112px));
   flex-direction: column;
   overflow: auto;
   overscroll-behavior: contain;

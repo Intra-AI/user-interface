@@ -80,8 +80,11 @@ const MCPSubMenu = React.forwardRef<HTMLDivElement, MCPSubMenuProps>(
           <Ariakit.Menu
             portal={true}
             unmountOnHide={true}
+            flip={true}
+            overflowPadding={56}
+            fitViewport={true}
             className={cn(
-              'animate-popover-left z-50 ml-3 flex min-w-[200px] flex-col rounded-xl',
+              'animate-popover-left z-50 ml-3 flex min-w-[200px] max-h-[calc(100vh-112px)] flex-col overflow-auto rounded-xl',
               'border border-border-light bg-surface-secondary p-1 shadow-lg',
             )}
           >

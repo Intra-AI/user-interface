@@ -98,11 +98,14 @@ const Dropdown: React.FC<DropdownProps> = ({
       <Select.SelectPopover
         portal={portal}
         store={selectProps}
+        flip={true}
+        overflowPadding={56}
+        fitViewport={true}
         className={cn(
           'popover-ui',
           sizeClasses,
           className,
-          'max-h-[80vh] overflow-y-auto',
+          'max-h-[min(80vh,calc(100vh-112px))] overflow-y-auto',
           '[pointer-events:auto]', // Override body's pointer-events:none when in modal
         )}
       >
