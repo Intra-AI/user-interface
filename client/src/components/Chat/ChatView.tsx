@@ -11,6 +11,7 @@ import { useChatHelpers, useAddedResponse, useSSE } from '~/hooks';
 import ConversationStarters from './Input/ConversationStarters';
 import { useGetMessagesByConvoId } from '~/data-provider';
 import MessagesView from './Messages/MessagesView';
+import AgentShowcase from './AgentShowcase';
 import Presentation from './Presentation';
 import ChatForm from './Input/ChatForm';
 import Landing from './Landing';
@@ -91,6 +92,7 @@ function ChatView({ index = 0 }: { index?: number }) {
                   )}
                 >
                   {content}
+                  {isLandingPage && <AgentShowcase />}
                   <div
                     className={cn(
                       'w-full',
