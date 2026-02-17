@@ -68,6 +68,14 @@ export enum PermissionTypes {
    * Type for Right Side Panel access
    */
   SIDE_PANEL = 'SIDE_PANEL',
+  /**
+   * Type for MCP Server Permissions
+   */
+  MCP_SERVERS = 'MCP_SERVERS',
+  /**
+   * Type for Remote Agent (API) Permissions
+   */
+  REMOTE_AGENTS = 'REMOTE_AGENTS',
 }
 
 /**
@@ -86,6 +94,8 @@ export enum Permissions {
   VIEW_USERS = 'VIEW_USERS',
   VIEW_GROUPS = 'VIEW_GROUPS',
   VIEW_ROLES = 'VIEW_ROLES',
+  /** Can share resources publicly (with everyone) */
+  SHARE_PUBLIC = 'SHARE_PUBLIC',
 }
 
 export const promptPermissionsSchema = z.object({
@@ -180,6 +190,22 @@ export const sidePanelPermissionsSchema = z.object({
 });
 export type TSidePanelPermissions = z.infer<typeof sidePanelPermissionsSchema>;
 
+export const mcpServersPermissionsSchema = z.object({
+  [Permissions.USE]: z.boolean().default(true),
+  [Permissions.CREATE]: z.boolean().default(true),
+  [Permissions.SHARE]: z.boolean().default(false),
+  [Permissions.SHARE_PUBLIC]: z.boolean().default(false),
+});
+export type TMcpServersPermissions = z.infer<typeof mcpServersPermissionsSchema>;
+
+export const remoteAgentsPermissionsSchema = z.object({
+  [Permissions.USE]: z.boolean().default(false),
+  [Permissions.CREATE]: z.boolean().default(false),
+  [Permissions.SHARE]: z.boolean().default(false),
+  [Permissions.SHARE_PUBLIC]: z.boolean().default(false),
+});
+export type TRemoteAgentsPermissions = z.infer<typeof remoteAgentsPermissionsSchema>;
+
 // Define a single permissions schema that holds all permission types.
 export const permissionsSchema = z.object({
   [PermissionTypes.PROMPTS]: promptPermissionsSchema,
@@ -197,4 +223,6 @@ export const permissionsSchema = z.object({
   [PermissionTypes.FILE_UPLOAD]: fileUploadPermissionsSchema,
   [PermissionTypes.HELP_FAQ]: helpFaqPermissionsSchema,
   [PermissionTypes.SIDE_PANEL]: sidePanelPermissionsSchema,
+  [PermissionTypes.MCP_SERVERS]: mcpServersPermissionsSchema,
+  [PermissionTypes.REMOTE_AGENTS]: remoteAgentsPermissionsSchema,
 });

@@ -274,7 +274,7 @@ export type UpdatePromptPermVars = UpdatePermVars<p.TPromptPermissions>;
 export type UpdateMemoryPermVars = UpdatePermVars<p.TMemoryPermissions>;
 export type UpdateAgentPermVars = UpdatePermVars<p.TAgentPermissions>;
 export type UpdatePeoplePickerPermVars = UpdatePermVars<p.TPeoplePickerPermissions>;
-export type UpdateMCPServersPermVars = UpdatePermVars<p.TMcpServersPermissions>;
+export type UpdateMCPServersPermVars = UpdatePermVars<Record<string, boolean>>;
 
 export type UpdatePermResponse = r.TRole;
 
@@ -313,7 +313,7 @@ export type UpdateMCPServersPermOptions = MutationOptions<
   types.TError | null | undefined
 >;
 
-export type UpdateRemoteAgentsPermVars = UpdatePermVars<p.TRemoteAgentsPermissions>;
+export type UpdateRemoteAgentsPermVars = UpdatePermVars<Record<string, boolean>>;
 
 export type UpdateRemoteAgentsPermOptions = MutationOptions<
   UpdatePermResponse,
