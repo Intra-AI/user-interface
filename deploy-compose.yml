@@ -39,13 +39,9 @@ services:
       - web
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.librechat-http.rule=Host(`chat.intra-ai.de`)"
+      - "traefik.http.routers.librechat-http.rule=Host(`10.8.0.1`)"
       - "traefik.http.routers.librechat-http.entrypoints=web"
-      - "traefik.http.routers.librechat-http.middlewares=redirect-to-https@file"
-      - "traefik.http.routers.librechat.rule=Host(`chat.intra-ai.de`)"
-      - "traefik.http.routers.librechat.entrypoints=websecure"
-      - "traefik.http.routers.librechat.tls.certresolver=le"
-      - "traefik.http.routers.librechat.middlewares=hsts-headers@file,gzip@file,ratelimit@file,privacy-headers@file"
+      - "traefik.http.routers.librechat-http.middlewares=gzip@file,ratelimit@file,privacy-headers@file"
       - "traefik.http.services.librechat.loadbalancer.server.port=3080"
       - "traefik.docker.network=web"
   mongodb:
