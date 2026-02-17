@@ -1,6 +1,9 @@
-const { isUserProvided, normalizeEndpointName } = require('@librechat/api');
-const { EModelEndpoint, extractEnvVariable } = require('librechat-data-provider');
-const { fetchModels } = require('~/server/services/ModelService');
+const { isUserProvided, fetchModels } = require('@librechat/api');
+const {
+  EModelEndpoint,
+  extractEnvVariable,
+  normalizeEndpointName,
+} = require('librechat-data-provider');
 const { getAppConfig } = require('./app');
 
 /**
@@ -24,14 +27,15 @@ async function loadConfigModels(req) {
     modelsConfig[EModelEndpoint.azureOpenAI] = modelNames;
   }
 
-  if (modelNames && azureConfig && azureConfig.plugins) {
-    modelsConfig[EModelEndpoint.gptPlugins] = modelNames;
-  }
-
   if (azureConfig?.assistants && azureConfig.assistantModels) {
     modelsConfig[EModelEndpoint.azureAssistants] = azureConfig.assistantModels;
   }
   */
+
+  const bedrockConfig = appConfig.endpoints?.[EModelEndpoint.bedrock];
+  if (bedrockConfig?.models && Array.isArray(bedrockConfig.models)) {
+    modelsConfig[EModelEndpoint.bedrock] = bedrockConfig.models;
+  }
 
   if (!Array.isArray(appConfig.endpoints?.[EModelEndpoint.custom])) {
     return modelsConfig;
@@ -61,7 +65,7 @@ async function loadConfigModels(req) {
 
   for (let i = 0; i < customEndpoints.length; i++) {
     const endpoint = customEndpoints[i];
-    const { models, name: configName, baseURL, apiKey } = endpoint;
+    const { models, name: configName, baseURL, apiKey, headers: endpointHeaders } = endpoint;
     const name = normalizeEndpointName(configName);
     endpointsMap[name] = endpoint;
 
@@ -80,6 +84,8 @@ async function loadConfigModels(req) {
           apiKey: API_KEY,
           baseURL: BASE_URL,
           user: req.user.id,
+          userObject: req.user,
+          headers: endpointHeaders,
           direct: endpoint.directEndpoint,
           userIdQuery: models.userIdQuery,
         });
@@ -89,7 +95,9 @@ async function loadConfigModels(req) {
     }
 
     if (Array.isArray(models.default)) {
-      modelsConfig[name] = models.default;
+      modelsConfig[name] = models.default.map((model) =>
+        typeof model === 'string' ? model : model.name,
+      );
     }
   }
 

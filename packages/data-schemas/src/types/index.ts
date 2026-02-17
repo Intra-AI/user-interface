@@ -1,6 +1,7 @@
 import type { Types } from 'mongoose';
 
 export type ObjectId = Types.ObjectId;
+export * from './app';
 export * from './user';
 export * from './token';
 export * from './convo';
@@ -9,6 +10,7 @@ export * from './balance';
 export * from './banner';
 export * from './message';
 export * from './agent';
+export * from './agentApiKey';
 export * from './agentCategory';
 export * from './role';
 export * from './action';
@@ -26,3 +28,7 @@ export * from './auditLog';
 export * from './accessRole';
 export * from './aclEntry';
 export * from './group';
+/* Web */
+export * from './web';
+/* MCP Servers */
+export * from './mcp';

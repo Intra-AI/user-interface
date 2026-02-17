@@ -1,3 +1,5 @@
+export * from './useMCPConnectionStatus';
 export * from './useMCPSelect';
-export * from './useGetMCPTools';
-export { useMCPServerManager } from './useMCPServerManager';
+export * from './useVisibleTools';
+export * from './useMCPServerManager';
+export { useRemoveMCPTool } from './useRemoveMCPTool';

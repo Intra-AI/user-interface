@@ -26,6 +26,7 @@ export enum QueryKeys {
   tools = 'tools',
   toolAuth = 'toolAuth',
   toolCalls = 'toolCalls',
+  mcpTools = 'mcpTools',
   mcpConnectionStatus = 'mcpConnectionStatus',
   mcpAuthValues = 'mcpAuthValues',
   agentTools = 'agentTools',
@@ -58,6 +59,13 @@ export enum QueryKeys {
   resourcePermissions = 'resourcePermissions',
   effectivePermissions = 'effectivePermissions',
   graphToken = 'graphToken',
+  /* MCP Servers */
+  mcpServers = 'mcpServers',
+  mcpServer = 'mcpServer',
+  /* Active Jobs */
+  activeJobs = 'activeJobs',
+  /* Agent API Keys */
+  agentApiKeys = 'agentApiKeys',
 }
 
 // Dynamic query keys that require parameters
@@ -66,6 +74,8 @@ export const DynamicQueryKeys = {
 } as const;
 
 export enum MutationKeys {
+  createAgentApiKey = 'createAgentApiKey',
+  deleteAgentApiKey = 'deleteAgentApiKey',
   fileUpload = 'fileUpload',
   fileDelete = 'fileDelete',
   deleteOldFiles = 'deleteOldFiles',

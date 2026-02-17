@@ -229,13 +229,7 @@ export default function Landing({ centerFormOnLanding }: { centerFormOnLanding: 
 
   const endpointType = useMemo(() => {
     let ep = conversation?.endpoint ?? '';
-    if (
-      [
-        EModelEndpoint.chatGPTBrowser,
-        EModelEndpoint.azureOpenAI,
-        EModelEndpoint.gptPlugins,
-      ].includes(ep as EModelEndpoint)
-    ) {
+    if (ep === EModelEndpoint.azureOpenAI) {
       ep = EModelEndpoint.openAI;
     }
     return getIconEndpoint({
@@ -358,6 +352,7 @@ export default function Landing({ centerFormOnLanding }: { centerFormOnLanding: 
               <TooltipAnchor
                 className="absolute bottom-[27px] right-2"
                 description={localize('com_ui_happy_birthday')}
+                aria-label={localize('com_ui_happy_birthday')}
               >
                 <BirthdayIcon />
               </TooltipAnchor>

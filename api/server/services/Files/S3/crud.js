@@ -1,15 +1,15 @@
 const fs = require('fs');
 const fetch = require('node-fetch');
+const { logger } = require('@librechat/data-schemas');
 const { FileSources } = require('librechat-data-provider');
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
+const { initializeS3, deleteRagFile } = require('@librechat/api');
 const {
   PutObjectCommand,
   GetObjectCommand,
   HeadObjectCommand,
   DeleteObjectCommand,
 } = require('@aws-sdk/client-s3');
-const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
-const { initializeS3 } = require('./initialize');
-const { logger } = require('~/config');
 
 const bucketName = process.env.AWS_BUCKET_NAME;
 const defaultBasePath = 'images';
@@ -142,6 +142,8 @@ async function saveURLToS3({ userId, URL, fileName, basePath = defaultBasePath }
  * @returns {Promise<void>}
  */
 async function deleteFileFromS3(req, file) {
+  await deleteRagFile({ userId: req.user.id, file });
+
   const key = extractKeyFromS3Url(file.filepath);
   const params = { Bucket: bucketName, Key: key };
   if (!key.includes(req.user.id)) {

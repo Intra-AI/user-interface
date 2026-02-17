@@ -67,7 +67,9 @@ export const messages = (params: q.MessagesListParams) => {
   return `${messagesRoot}${buildQuery(rest)}`;
 };
 
-export const messagesArtifacts = (messageId: string) => `${messagesRoot}/artifacts/${messageId}`;
+export const messagesArtifacts = (messageId: string) => `${messagesRoot}/artifact/${messageId}`;
+
+export const messagesBranch = () => `${messagesRoot}/branch`;
 
 const shareRoot = `${BASE_URL}/api/share`;
 export const shareMessages = (shareId: string) => `${shareRoot}/${shareId}`;
@@ -96,6 +98,12 @@ export const revokeUserKey = (name: string) => `${keysEndpoint}/${name}`;
 
 export const revokeAllUserKeys = () => `${keysEndpoint}?all=true`;
 
+const apiKeysEndpoint = `${BASE_URL}/api/api-keys`;
+
+export const apiKeys = () => apiKeysEndpoint;
+
+export const apiKeyById = (id: string) => `${apiKeysEndpoint}/${id}`;
+
 export const conversationsRoot = `${BASE_URL}/api/convos`;
 
 export const conversations = (params: q.ConversationListParams) => {
@@ -104,9 +112,12 @@ export const conversations = (params: q.ConversationListParams) => {
 
 export const conversationById = (id: string) => `${conversationsRoot}/${id}`;
 
-export const genTitle = () => `${conversationsRoot}/gen_title`;
+export const genTitle = (conversationId: string) =>
+  `${conversationsRoot}/gen_title/${encodeURIComponent(conversationId)}`;
 
 export const updateConversation = () => `${conversationsRoot}/update`;
+
+export const archiveConversation = () => `${conversationsRoot}/archive`;
 
 export const deleteConversation = () => `${conversationsRoot}`;
 
@@ -154,6 +165,10 @@ export const changePassword = () => `${BASE_URL}/api/auth/change-password`;
 
 export const verifyEmail = () => `${BASE_URL}/api/user/verify`;
 
+// Auth page URLs (for client-side navigation and redirects)
+export const loginPage = () => `${BASE_URL}/login`;
+export const registerPage = () => `${BASE_URL}/register`;
+
 export const resendVerificationEmail = () => `${BASE_URL}/api/user/verify/resend`;
 
 export const plugins = () => `${BASE_URL}/api/plugins`;
@@ -170,6 +185,11 @@ export const mcpAuthValues = (serverName: string) => {
 export const cancelMCPOAuth = (serverName: string) => {
   return `${BASE_URL}/api/mcp/oauth/cancel/${serverName}`;
 };
+
+export const mcpOAuthBind = (serverName: string) => `${BASE_URL}/api/mcp/${serverName}/oauth/bind`;
+
+export const actionOAuthBind = (actionId: string) =>
+  `${BASE_URL}/api/actions/${actionId}/oauth/bind`;
 
 export const config = () => `${BASE_URL}/api/config`;
 
@@ -227,6 +247,15 @@ export const agents = ({ path = '', options }: { path?: string; options?: object
   return url;
 };
 
+export const activeJobs = () => `${BASE_URL}/api/agents/chat/active`;
+
+export const mcp = {
+  tools: `${BASE_URL}/api/mcp/tools`,
+  servers: `${BASE_URL}/api/mcp/servers`,
+};
+
+export const mcpServer = (serverName: string) => `${BASE_URL}/api/mcp/servers/${serverName}`;
+
 export const revertAgentVersion = (agent_id: string) => `${agents({ path: `${agent_id}/revert` })}`;
 
 export const files = () => `${BASE_URL}/api/files`;
@@ -257,8 +286,19 @@ export const getPromptGroup = (_id: string) => `${prompts()}/groups/${_id}`;
 
 export const getPromptGroupsWithFilters = (filter: object) => {
   let url = `${prompts()}/groups`;
-  if (Object.keys(filter).length > 0) {
-    const queryParams = new URLSearchParams(filter as Record<string, string>).toString();
+  // Filter out undefined/null values
+  const cleanedFilter = Object.entries(filter).reduce(
+    (acc, [key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        acc[key] = value;
+      }
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
+
+  if (Object.keys(cleanedFilter).length > 0) {
+    const queryParams = new URLSearchParams(cleanedFilter).toString();
     url += `?${queryParams}`;
   }
   return url;
@@ -304,6 +344,9 @@ export const updateMemoryPermissions = (roleName: string) => `${getRole(roleName
 export const updateAgentPermissions = (roleName: string) => `${getRole(roleName)}/agents`;
 export const updatePeoplePickerPermissions = (roleName: string) =>
   `${getRole(roleName)}/people-picker`;
+export const updateMCPServersPermissions = (roleName: string) => `${getRole(roleName)}/mcp-servers`;
+export const updateRemoteAgentsPermissions = (roleName: string) =>
+  `${getRole(roleName)}/remote-agents`;
 
 export const updateMarketplacePermissions = (roleName: string) =>
   `${getRole(roleName)}/marketplace`;
@@ -370,6 +413,9 @@ export const updateResourcePermissions = (resourceType: ResourceType, resourceId
 
 export const getEffectivePermissions = (resourceType: ResourceType, resourceId: string) =>
   `${BASE_URL}/api/permissions/${resourceType}/${resourceId}/effective`;
+
+export const getAllEffectivePermissions = (resourceType: ResourceType) =>
+  `${BASE_URL}/api/permissions/${resourceType}/effective/all`;
 
 // SharePoint Graph API Token
 export const graphToken = (scopes: string) =>
