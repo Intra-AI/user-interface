@@ -1508,15 +1508,5 @@
   "com_ui_zoom_in": "Pietuvināt",
   "com_ui_zoom_level": "Pietuvināšanas līmenis",
   "com_ui_zoom_out": "Attālināt",
-  "com_user_message": "Tu",
-  "com_endpoint_anthropic_effort": "Kontrolē, cik lielu skaitļošanas piepūli piemēro Claude. Mazāka piepūle ietaupa tokenus un samazina ātrumu; lielāka piepūle nodrošina rūpīgākas atbildes. 'Max' ļauj veikt visdziļāko argumentāciju (tikai Opus 4.6).",
-  "com_endpoint_effort": "Piepūle",
-  "com_ui_create_mcp_server": "Izveidot MCP serveri",
-  "com_ui_creating": "Notiek izveide...",
-  "com_ui_delete_mcp_server": "Vai dzēst MCP serveri?",
-  "com_ui_delete_mcp_server_name": "Dzēst MCP serveri {{0}}",
-  "com_ui_deleting": "Dzēš...",
-  "com_ui_max": "Maksimums",
-  "com_ui_update_mcp_server": "Atjaunināt MCP serveri",
-  "com_ui_updating": "Atjaunina..."
+  "com_user_message": "Tu"
 }
