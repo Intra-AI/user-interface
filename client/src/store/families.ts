@@ -38,7 +38,7 @@ const latestMessageFamily = atomFamily<TMessage | null, string | number | null>(
   effects: [
     ({ onSet, node }) => {
       onSet(async (newValue) => {
-        const key = Number(node.key.split(Constants.COMMON_DIVIDER)[1]);
+        const key = Number(node?.key?.split(Constants.COMMON_DIVIDER)?.[1] ?? 0);
         logger.log('Recoil Effect: Setting latestMessage', { key, newValue });
       });
     },
@@ -80,7 +80,7 @@ const conversationByIndex = atomFamily<TConversation | null, string | number>({
   effects: [
     ({ onSet, node }) => {
       onSet(async (newValue, oldValue) => {
-        const index = Number(node.key.split('__')[1]);
+        const index = Number(node?.key?.split('__')?.[1] ?? 0);
         logger.log('conversation', 'Setting conversation:', { index, newValue, oldValue });
         if (newValue?.assistant_id != null && newValue.assistant_id) {
           localStorage.setItem(
@@ -172,7 +172,7 @@ const abortScrollFamily = atomFamily<boolean, string | number>({
   effects: [
     ({ onSet, node }) => {
       onSet(async (newValue) => {
-        const key = Number(node.key.split(Constants.COMMON_DIVIDER)[1]);
+        const key = Number(node?.key?.split(Constants.COMMON_DIVIDER)?.[1] ?? 0);
         logger.log('message_scrolling', 'Recoil Effect: Setting abortScrollByIndex', {
           key,
           newValue,
@@ -188,7 +188,7 @@ const isSubmittingFamily = atomFamily({
   effects: [
     ({ onSet, node }) => {
       onSet(async (newValue) => {
-        const key = Number(node.key.split(Constants.COMMON_DIVIDER)[1]);
+        const key = Number(node?.key?.split(Constants.COMMON_DIVIDER)?.[1] ?? 0);
         logger.log('message_stream', 'Recoil Effect: Setting isSubmittingByIndex', {
           key,
           newValue,

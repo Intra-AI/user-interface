@@ -9,7 +9,7 @@ export const artifactsState = atom<Record<string, Artifact | undefined> | null>(
     ({ onSet, node }) => {
       onSet(async (newValue) => {
         logger.log('artifacts', 'Recoil Effect: Setting artifactsState', {
-          key: node.key,
+          key: node?.key,
           newValue,
         });
       });
@@ -24,7 +24,7 @@ export const currentArtifactId = atom<string | null>({
     ({ onSet, node }) => {
       onSet(async (newValue) => {
         logger.log('artifacts', 'Recoil Effect: Setting currentArtifactId', {
-          key: node.key,
+          key: node?.key,
           newValue,
         });
       });
@@ -39,7 +39,7 @@ export const artifactsVisibility = atom<boolean>({
     ({ onSet, node }) => {
       onSet(async (newValue) => {
         logger.log('artifacts', 'Recoil Effect: Setting artifactsVisibility', {
-          key: node.key,
+          key: node?.key,
           newValue,
         });
       });
@@ -54,7 +54,7 @@ export const visibleArtifacts = atom<Record<string, Artifact | undefined> | null
     ({ onSet, node }) => {
       onSet(async (newValue) => {
         logger.log('artifacts', 'Recoil Effect: Setting `visibleArtifacts`', {
-          key: node.key,
+          key: node?.key,
           newValue,
         });
       });

@@ -51,6 +51,7 @@ const localStorageAtoms = {
   rememberDefaultFork: atomWithLocalStorage(LocalStorageKeys.REMEMBER_FORK_OPTION, false),
   showThinking: atomWithLocalStorage('showThinking', false),
   saveBadgesState: atomWithLocalStorage('saveBadgesState', false),
+  keepScreenAwake: atomWithLocalStorage('keepScreenAwake', true),
 
   // Beta features settings
   modularChat: atomWithLocalStorage('modularChat', true),

@@ -9,7 +9,7 @@ export const ephemeralAgentByConvoId = atomFamily<TEphemeralAgent | null, string
   effects: [
     ({ onSet, node }) => {
       onSet(async (newValue) => {
-        const conversationId = node.key.split('__')[1]?.replaceAll('"', '');
+        const conversationId = node?.key?.split('__')?.[1]?.replaceAll('"', '');
         logger.log('agents', 'Setting ephemeral agent:', { conversationId, newValue });
       });
     },

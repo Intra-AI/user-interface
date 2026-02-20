@@ -75,6 +75,20 @@ const startServer = async () => {
   app.use(noIndex);
   app.use(express.json({ limit: '3mb' }));
   app.use(express.urlencoded({ extended: true, limit: '3mb' }));
+
+  /**
+   * Express 5 Compatibility: Make req.query writable for mongoSanitize
+   * In Express 5, req.query is read-only by default, but express-mongo-sanitize needs to modify it
+   */
+  app.use((req, _res, next) => {
+    Object.defineProperty(req, 'query', {
+      ...Object.getOwnPropertyDescriptor(req, 'query'),
+      value: req.query,
+      writable: true,
+    });
+    next();
+  });
+
   app.use(mongoSanitize());
   app.use(cors());
   app.use(cookieParser());
@@ -114,19 +128,16 @@ const startServer = async () => {
   app.use('/api/keys', routes.keys);
   app.use('/api/user', routes.user);
   app.use('/api/search', routes.search);
-  app.use('/api/edit', routes.edit);
   app.use('/api/messages', routes.messages);
   app.use('/api/convos', routes.convos);
   app.use('/api/presets', routes.presets);
   app.use('/api/prompts', routes.prompts);
   app.use('/api/categories', routes.categories);
-  app.use('/api/tokenizer', routes.tokenizer);
   app.use('/api/endpoints', routes.endpoints);
   app.use('/api/balance', routes.balance);
   app.use('/api/storage', routes.storage);
   app.use('/api/support', routes.support);
   app.use('/api/models', routes.models);
-  app.use('/api/plugins', routes.plugins);
   app.use('/api/config', routes.config);
   app.use('/api/assistants', routes.assistants);
   app.use('/api/files', await routes.files.initialize());

@@ -18,7 +18,7 @@ import PanelSwitch from '~/components/SidePanel/Builder/PanelSwitch';
 import PromptsAccordion from '~/components/Prompts/PromptsAccordion';
 import Parameters from '~/components/SidePanel/Parameters/Panel';
 import FilesPanel from '~/components/SidePanel/Files/Panel';
-import MCPPanel from '~/components/SidePanel/MCP/MCPPanel';
+import MCPBuilderPanel from '~/components/SidePanel/MCPBuilder/MCPBuilderPanel';
 import { useGetStartupConfig } from '~/data-provider';
 import { useHasAccess } from '~/hooks';
 
@@ -173,7 +173,7 @@ export default function useSideNavLinks({
         label: '',
         icon: MCPIcon,
         id: 'mcp-settings',
-        Component: MCPPanel,
+        Component: MCPBuilderPanel,
       });
     }
 

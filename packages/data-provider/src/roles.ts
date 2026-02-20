@@ -106,6 +106,18 @@ const defaultRolesSchema = z.object({
       [PermissionTypes.SIDE_PANEL]: sidePanelPermissionsSchema.extend({
         [Permissions.USE]: z.boolean().default(true),
       }),
+      [PermissionTypes.MCP_SERVERS]: z.object({
+        [Permissions.USE]: z.boolean().default(true),
+        [Permissions.CREATE]: z.boolean().default(true),
+        [Permissions.SHARE]: z.boolean().default(false),
+        [Permissions.SHARE_PUBLIC]: z.boolean().default(false),
+      }),
+      [PermissionTypes.REMOTE_AGENTS]: z.object({
+        [Permissions.USE]: z.boolean().default(false),
+        [Permissions.CREATE]: z.boolean().default(false),
+        [Permissions.SHARE]: z.boolean().default(false),
+        [Permissions.SHARE_PUBLIC]: z.boolean().default(false),
+      }),
     }),
   }),
   [SystemRoles.MANAGER]: roleSchema.extend({
@@ -167,6 +179,18 @@ const defaultRolesSchema = z.object({
       [PermissionTypes.SIDE_PANEL]: sidePanelPermissionsSchema.extend({
         [Permissions.USE]: z.boolean().default(true),
       }),
+      [PermissionTypes.MCP_SERVERS]: z.object({
+        [Permissions.USE]: z.boolean().default(true),
+        [Permissions.CREATE]: z.boolean().default(false),
+        [Permissions.SHARE]: z.boolean().default(false),
+        [Permissions.SHARE_PUBLIC]: z.boolean().default(false),
+      }),
+      [PermissionTypes.REMOTE_AGENTS]: z.object({
+        [Permissions.USE]: z.boolean().default(false),
+        [Permissions.CREATE]: z.boolean().default(false),
+        [Permissions.SHARE]: z.boolean().default(false),
+        [Permissions.SHARE_PUBLIC]: z.boolean().default(false),
+      }),
     }),
   }),
   [SystemRoles.USER]: roleSchema.extend({
@@ -227,6 +251,18 @@ const defaultRolesSchema = z.object({
       [PermissionTypes.SIDE_PANEL]: sidePanelPermissionsSchema.extend({
         [Permissions.USE]: z.boolean().default(false),
       }),
+      [PermissionTypes.MCP_SERVERS]: z.object({
+        [Permissions.USE]: z.boolean().default(true),
+        [Permissions.CREATE]: z.boolean().default(false),
+        [Permissions.SHARE]: z.boolean().default(false),
+        [Permissions.SHARE_PUBLIC]: z.boolean().default(false),
+      }),
+      [PermissionTypes.REMOTE_AGENTS]: z.object({
+        [Permissions.USE]: z.boolean().default(false),
+        [Permissions.CREATE]: z.boolean().default(false),
+        [Permissions.SHARE]: z.boolean().default(false),
+        [Permissions.SHARE_PUBLIC]: z.boolean().default(false),
+      }),
     }),
   }),
 });
@@ -250,6 +286,8 @@ export const roleDefaults = defaultRolesSchema.parse({
       [PermissionTypes.FILE_UPLOAD]: {},
       [PermissionTypes.HELP_FAQ]: {},
       [PermissionTypes.SIDE_PANEL]: {},
+      [PermissionTypes.MCP_SERVERS]: {},
+      [PermissionTypes.REMOTE_AGENTS]: {},
     },
   },
   [SystemRoles.MANAGER]: {
@@ -270,6 +308,8 @@ export const roleDefaults = defaultRolesSchema.parse({
       [PermissionTypes.FILE_UPLOAD]: {},
       [PermissionTypes.HELP_FAQ]: {},
       [PermissionTypes.SIDE_PANEL]: {},
+      [PermissionTypes.MCP_SERVERS]: {},
+      [PermissionTypes.REMOTE_AGENTS]: {},
     },
   },
   [SystemRoles.USER]: {
@@ -290,6 +330,8 @@ export const roleDefaults = defaultRolesSchema.parse({
       [PermissionTypes.FILE_UPLOAD]: {},
       [PermissionTypes.HELP_FAQ]: {},
       [PermissionTypes.SIDE_PANEL]: {},
+      [PermissionTypes.MCP_SERVERS]: {},
+      [PermissionTypes.REMOTE_AGENTS]: {},
     },
   },
 });
