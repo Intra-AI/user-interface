@@ -10,7 +10,7 @@ type MCPSelectProps = { conversationId?: string | null };
 
 function MCPSelectContent({ conversationId }: MCPSelectProps) {
   const {
-    configuredServers,
+    selectableServers,
     mcpValues,
     isPinned,
     placeholderText,
@@ -20,6 +20,8 @@ function MCPSelectContent({ conversationId }: MCPSelectProps) {
     isInitializing,
     localize,
   } = useMCPServerManager({ conversationId });
+
+  const configuredServers = selectableServers.map((s) => s.serverName);
 
   const renderSelectedValues = useCallback(
     (values: string[], placeholder?: string) => {
@@ -105,8 +107,9 @@ function MCPSelectContent({ conversationId }: MCPSelectProps) {
 }
 
 function MCPSelect(props: MCPSelectProps) {
-  const { mcpServerNames } = useBadgeRowContext();
-  if ((mcpServerNames?.length ?? 0) === 0) return null;
+  const { mcpServerManager } = useBadgeRowContext();
+  const { selectableServers } = mcpServerManager;
+  if ((selectableServers?.length ?? 0) === 0) return null;
   return <MCPSelectContent {...props} />;
 }
 
