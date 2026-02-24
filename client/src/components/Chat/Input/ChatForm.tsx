@@ -321,7 +321,7 @@ const ChatForm = memo(({ index = 0 }: { index?: number }) => {
               </div>
               <BadgeRow
                 showEphemeralBadges={
-                  !!endpoint && !isAgentsEndpoint(endpoint) && !isAssistantsEndpoint(endpoint)
+                  !!endpoint && !isAssistantsEndpoint(endpoint)
                 }
                 isSubmitting={isSubmitting}
                 conversationId={conversationId}
