@@ -38,7 +38,7 @@ export default function StartupLayout({ isAuthenticated }: { isAuthenticated?: b
   }, [isAuthenticated, navigate, data]);
 
   useEffect(() => {
-    document.title = startupConfig?.appTitle || 'Intra AI';
+    document.title = startupConfig?.appTitle || 'Contiss AI';
   }, [startupConfig?.appTitle]);
 
   useEffect(() => {
