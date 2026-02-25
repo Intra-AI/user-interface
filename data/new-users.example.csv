@@ -1,0 +1,8 @@
+# Bulk user registration - CSV template
+# Columns: email, name, username, role
+# Role is optional (defaults to USER). Valid values: USER, MANAGER, ADMIN
+# Lines starting with # are ignored. Empty lines are ignored.
+# Delimiter: comma or semicolon (auto-detected)
+email,name,username,role
+max.mustermann@example.com,Max Mustermann,max,USER
+anna.schmidt@example.com,Anna Schmidt,anna,USER

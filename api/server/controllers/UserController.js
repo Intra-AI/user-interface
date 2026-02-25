@@ -1,7 +1,6 @@
 const { logger } = require('@librechat/data-schemas');
-const { webSearchKeys, extractWebSearchEnvVars, normalizeHttpError } = require('@librechat/api');
+const { webSearchKeys, extractWebSearchEnvVars, normalizeHttpError, isEnabled } = require('@librechat/api');
 const { createAuditLog } = require('~/models/AuditLog');
-const { isEnabled } = require('~/server/utils');
 const {
   getFiles,
   updateUser,
