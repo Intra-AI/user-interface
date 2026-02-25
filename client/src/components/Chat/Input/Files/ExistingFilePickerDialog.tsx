@@ -55,7 +55,7 @@ export default function ExistingFilePickerDialog({
     <OGDialog open={open} onOpenChange={onOpenChange}>
       <OGDialogContent
         title={localize('com_ui_select_files') || 'Select Files from My Files'}
-        className="w-11/12 max-w-5xl bg-background text-text-primary shadow-2xl"
+        className="w-11/12 max-w-5xl overflow-hidden !flex !flex-col bg-background text-text-primary shadow-2xl"
       >
         <OGDialogHeader>
           <OGDialogTitle>
@@ -63,7 +63,7 @@ export default function ExistingFilePickerDialog({
           </OGDialogTitle>
         </OGDialogHeader>
         
-        <div className="flex flex-col gap-4">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
               <Spinner className="size-6" />
@@ -73,52 +73,52 @@ export default function ExistingFilePickerDialog({
               {localize('com_ui_no_files') || 'No files available. Upload some files first.'}
             </div>
           ) : (
-            <>
-              <DataTable 
-                columns={columns} 
-                data={files}
-                onSelectionChange={setSelectedFiles}
-              />
-              
-              <div className="flex items-center justify-between border-t border-border-light pt-4">
-                <div className="text-sm text-text-secondary">
-                  {selectedFiles.length > 0 
-                    ? `${selectedFiles.length} file(s) selected`
-                    : localize('com_ui_select_files_hint') || 'Select files to attach to conversation'
-                  }
-                </div>
-                
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={handleCancel}
-                    disabled={isProcessing}
-                  >
-                    {localize('com_ui_cancel') || 'Cancel'}
-                  </Button>
-                  
-                  <Button
-                    onClick={handleConfirm}
-                    disabled={selectedFiles.length === 0 || isProcessing}
-                    className={cn(
-                      'min-w-[100px]',
-                      selectedFiles.length > 0 && 'bg-green-600 hover:bg-green-700'
-                    )}
-                  >
-                    {isProcessing ? (
-                      <>
-                        <Spinner className="mr-2 size-4" />
-                        {localize('com_ui_attaching') || 'Attaching...'}
-                      </>
-                    ) : (
-                      `${localize('com_ui_attach')} ${selectedFiles.length > 0 ? `(${selectedFiles.length})` : ''}`
-                    )}
-                  </Button>
-                </div>
-              </div>
-            </>
+            <DataTable 
+              columns={columns} 
+              data={files}
+              onSelectionChange={setSelectedFiles}
+            />
           )}
         </div>
+
+        {!isLoading && files.length > 0 && (
+          <div className="flex flex-shrink-0 items-center justify-between border-t border-border-light pt-3 pb-1">
+            <div className="text-sm text-text-secondary">
+              {selectedFiles.length > 0 
+                ? `${selectedFiles.length} file(s) selected`
+                : localize('com_ui_select_files_hint') || 'Select files to attach to conversation'
+              }
+            </div>
+            
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={handleCancel}
+                disabled={isProcessing}
+              >
+                {localize('com_ui_cancel') || 'Cancel'}
+              </Button>
+              
+              <Button
+                onClick={handleConfirm}
+                disabled={selectedFiles.length === 0 || isProcessing}
+                className={cn(
+                  'min-w-[100px]',
+                  selectedFiles.length > 0 && 'bg-green-600 hover:bg-green-700'
+                )}
+              >
+                {isProcessing ? (
+                  <>
+                    <Spinner className="mr-2 size-4" />
+                    {localize('com_ui_attaching') || 'Attaching...'}
+                  </>
+                ) : (
+                  `${localize('com_ui_attach')} ${selectedFiles.length > 0 ? `(${selectedFiles.length})` : ''}`
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
       </OGDialogContent>
     </OGDialog>
   );

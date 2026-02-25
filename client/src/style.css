@@ -3531,3 +3531,39 @@ html {
     justify-content: flex-start;
   }
 }
+
+/* =================================================================
+   Constrain ALL fixed overlays between Contiss header and footer.
+   Ensures no popup, modal, dialog, or overlay slides under the bars.
+   The Contiss bars use custom CSS classes (not Tailwind's .fixed.inset-0),
+   so this rule does NOT affect them.
+   ================================================================= */
+
+/* 1. Full-viewport fixed overlays: backdrops, centering containers, toast viewport */
+.fixed.inset-0 {
+  top: var(--contiss-header-height) !important;
+  bottom: var(--contiss-footer-height) !important;
+}
+
+/* 2. Radix portal dialog/alertdialog content (centered with top-[50%] translate) —
+   shift center point from viewport-center to center-of-available-space.
+   Available center = header + (viewport - header - footer) / 2
+                    = (100vh + header - footer) / 2                               */
+[data-radix-portal] [role="dialog"],
+[data-radix-portal] [role="alertdialog"] {
+  max-height: calc(100vh - var(--contiss-header-height) - var(--contiss-footer-height) - 3rem) !important;
+  top: calc((100vh + var(--contiss-header-height) - var(--contiss-footer-height)) / 2) !important;
+}
+
+/* 3. Dialog panels using max-h-[90vh] — cap to available space between bars */
+.max-h-\[90vh\] {
+  max-height: min(90vh, calc(100vh - var(--contiss-header-height) - var(--contiss-footer-height) - 3rem)) !important;
+}
+
+/* 4. Full-height mobile dialogs (e.g. EditPresetDialog) */
+.max-h-\[100dvh\] {
+  max-height: calc(100dvh - var(--contiss-header-height) - var(--contiss-footer-height)) !important;
+}
+.h-\[100dvh\] {
+  height: calc(100dvh - var(--contiss-header-height) - var(--contiss-footer-height)) !important;
+}

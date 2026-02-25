@@ -62,6 +62,18 @@ const rolePermissionsSchema = new Schema(
     [PermissionTypes.SIDE_PANEL]: {
       [Permissions.USE]: { type: Boolean },
     },
+    [PermissionTypes.MCP_SERVERS]: {
+      [Permissions.USE]: { type: Boolean },
+      [Permissions.CREATE]: { type: Boolean },
+      [Permissions.SHARE]: { type: Boolean },
+      [Permissions.SHARE_PUBLIC]: { type: Boolean },
+    },
+    [PermissionTypes.REMOTE_AGENTS]: {
+      [Permissions.USE]: { type: Boolean },
+      [Permissions.CREATE]: { type: Boolean },
+      [Permissions.SHARE]: { type: Boolean },
+      [Permissions.SHARE_PUBLIC]: { type: Boolean },
+    },
   },
   { _id: false },
 );
