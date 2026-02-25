@@ -194,18 +194,22 @@ const containerClassName =
 
 function getTextSizeClass(text: string | undefined | null) {
   if (!text) {
-    return 'text-xl sm:text-2xl';
+    return 'text-2xl sm:text-3xl md:text-4xl';
   }
 
-  if (text.length < 40) {
-    return 'text-2xl sm:text-4xl';
+  if (text.length < 30) {
+    return 'text-2xl sm:text-3xl md:text-4xl';
+  }
+
+  if (text.length < 50) {
+    return 'text-xl sm:text-2xl md:text-3xl lg:text-4xl';
   }
 
   if (text.length < 70) {
-    return 'text-xl sm:text-2xl';
+    return 'text-xl sm:text-2xl md:text-3xl';
   }
 
-  return 'text-lg sm:text-md';
+  return 'text-lg sm:text-xl md:text-2xl';
 }
 
 export default function Landing({ centerFormOnLanding }: { centerFormOnLanding: boolean }) {
@@ -375,7 +379,7 @@ export default function Landing({ centerFormOnLanding }: { centerFormOnLanding: 
               />
             </div>
           ) : (
-            <div className="flex flex-wrap items-center justify-center">
+            <div className="flex flex-wrap items-center justify-center px-4">
               <StyledSplitText
                 key={`styled-split-text-${greetingText}`}
                 text={greetingText}
