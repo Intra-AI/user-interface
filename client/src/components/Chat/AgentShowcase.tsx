@@ -1,6 +1,6 @@
 import React, { useRef, useState, useCallback, useMemo, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Bot, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Bot, ChevronLeft, ChevronRight, MessageSquare } from 'lucide-react';
 import {
   Constants,
   QueryKeys,
@@ -8,10 +8,11 @@ import {
   PermissionBits,
   dataService,
 } from 'librechat-data-provider';
-import type { TConversation, TPreset, Agent } from 'librechat-data-provider';
+import type { TConversation, TPreset, Agent, TModelSpec, TEndpointsConfig } from 'librechat-data-provider';
 import { useChatContext, useAgentsMapContext } from '~/Providers';
 import useDefaultConvo from '~/hooks/Conversations/useDefaultConvo';
-import { useListAgentsQuery } from '~/data-provider';
+import { useListAgentsQuery, useGetStartupConfig, useGetEndpointsQuery } from '~/data-provider';
+import { getModelSpecPreset, getModelSpecIconURL } from '~/utils';
 import { getAgentAvatarUrl } from '~/utils/agents';
 import { logger } from '~/utils';
 
@@ -60,6 +61,57 @@ function AgentShowcaseCard({
   );
 }
 
+/* ─── Model spec card for the showcase ─── */
+function ModelSpecCard({
+  spec,
+  displayLabel,
+  onSelect,
+}: {
+  spec: TModelSpec;
+  displayLabel?: string;
+  onSelect: (spec: TModelSpec) => void;
+}) {
+  const iconURL = getModelSpecIconURL(spec);
+  const label = displayLabel ?? spec.label ?? spec.name;
+
+  return (
+    <button
+      onClick={() => onSelect(spec)}
+      className="group relative flex w-36 flex-shrink-0 cursor-pointer flex-col items-center gap-2.5 rounded-2xl border border-border-light bg-surface-primary-alt px-3 pb-4 pt-4 shadow-sm transition-all duration-200 hover:border-border-medium hover:shadow-md hover:bg-surface-hover active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 sm:w-40"
+      aria-label={`${label} auswählen`}
+    >
+      {/* Icon */}
+      <div className="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border border-border-light bg-surface-secondary shadow-sm transition-transform duration-200 group-hover:scale-105 sm:h-16 sm:w-16">
+        {iconURL ? (
+          <img
+            src={iconURL}
+            alt={label}
+            className="h-full w-full rounded-full object-cover"
+            loading="lazy"
+          />
+        ) : (
+          <MessageSquare
+            className="h-7 w-7 text-text-secondary sm:h-8 sm:w-8"
+            strokeWidth={1.5}
+          />
+        )}
+      </div>
+
+      {/* Label */}
+      <span className="line-clamp-1 w-full text-center text-sm font-medium text-text-primary">
+        {label}
+      </span>
+
+      {/* Description */}
+      {spec.description && (
+        <span className="line-clamp-2 w-full text-center text-xs leading-relaxed text-text-secondary">
+          {spec.description}
+        </span>
+      )}
+    </button>
+  );
+}
+
 /* ─── Scroll arrow button ─── */
 function ScrollArrow({
   direction,
@@ -96,10 +148,19 @@ export default function AgentShowcase() {
   const agentsMap = useAgentsMapContext();
   const { conversation, newConversation } = useChatContext();
   const getDefaultConversation = useDefaultConvo();
+  const { data: startupConfig } = useGetStartupConfig();
+  const { data: endpointsConfig = {} as TEndpointsConfig } = useGetEndpointsQuery();
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+
+  // Fetch only the default model spec from startup config
+  const modelSpecs = useMemo(() => {
+    const list = startupConfig?.modelSpecs?.list ?? [];
+    const defaultSpec = list.find((spec) => spec.default);
+    return defaultSpec ? [defaultSpec] : [];
+  }, [startupConfig]);
 
   // Fetch agents list
   const { data: agentsList = null, isLoading } = useListAgentsQuery(
@@ -200,6 +261,21 @@ export default function AgentShowcase() {
     [agentsMap, updateConversation, queryClient],
   );
 
+  // Handle model spec selection
+  const onSelectModelSpec = useCallback(
+    (spec: TModelSpec) => {
+      logger.log('conversation', 'Selecting model spec from showcase', spec);
+      const preset = getModelSpecPreset(spec);
+      if (!preset) {
+        return;
+      }
+      newConversation({
+        preset: preset as Partial<TPreset>,
+      });
+    },
+    [newConversation],
+  );
+
   // Filter visible agents (those with names)
   const agents = useMemo(() => {
     if (!agentsList) {
@@ -208,8 +284,8 @@ export default function AgentShowcase() {
     return agentsList.filter((a) => a.name);
   }, [agentsList]);
 
-  // Don't render if no agents
-  if (!agents.length && !isLoading) {
+  // Don't render if no agents and no model specs
+  if (!agents.length && !modelSpecs.length && !isLoading) {
     return null;
   }
 
@@ -247,6 +323,14 @@ export default function AgentShowcase() {
           ref={scrollRef}
           className="no-scrollbar flex gap-3 overflow-x-auto scroll-smooth pb-2 pt-1"
         >
+          {modelSpecs.map((spec) => (
+            <ModelSpecCard
+              key={spec.name}
+              spec={spec}
+              displayLabel={endpointsConfig?.[spec.preset?.endpoint ?? '']?.modelDisplayLabel}
+              onSelect={onSelectModelSpec}
+            />
+          ))}
           {agents.map((agent) => (
             <AgentShowcaseCard
               key={agent.id}
