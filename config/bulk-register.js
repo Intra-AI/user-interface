@@ -314,8 +314,7 @@ function saveCredentials(users, outputPath) {
 
   // Send emails
   const loginUrl = process.env.DOMAIN_CLIENT || 'https://ai.intra-ai.de';
-  const registrationGuideUrl = process.env.REGISTRATION_GUIDE_URL || 'https://www.intra-ai.de/docs/registrierung';
-  const usageGuideUrl = process.env.USAGE_GUIDE_URL || 'https://www.intra-ai.de/docs/benutzung';
+  const registrationGuideUrl = process.env.REGISTRATION_GUIDE_URL || 'https://chat.intra-ai.de/tutorials/registration';
 
   console.purple('\nSending welcome emails...\n');
 
@@ -333,7 +332,6 @@ function saveCredentials(users, outputPath) {
           password: u.password,
           loginUrl: loginUrl,
           registrationGuideUrl: registrationGuideUrl,
-          usageGuideUrl: usageGuideUrl,
           year: new Date().getFullYear(),
         },
         template: 'welcomeNewUser.handlebars',
