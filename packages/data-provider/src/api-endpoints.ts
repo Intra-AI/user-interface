@@ -188,6 +188,9 @@ export const cancelMCPOAuth = (serverName: string) => {
 
 export const mcpOAuthBind = (serverName: string) => `${BASE_URL}/api/mcp/${serverName}/oauth/bind`;
 
+export const fileroAuthValidate = () => `${BASE_URL}/api/mcp/filero-auth/validate`;
+export const fileroAuthStatus = () => `${BASE_URL}/api/mcp/filero-auth/status`;
+
 export const actionOAuthBind = (actionId: string) =>
   `${BASE_URL}/api/actions/${actionId}/oauth/bind`;
 

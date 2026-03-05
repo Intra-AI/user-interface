@@ -1,4 +1,5 @@
 const { Router } = require('express');
+const axios = require('axios');
 const { logger } = require('@librechat/data-schemas');
 const {
   CacheKeys,
@@ -55,6 +56,130 @@ const OAUTH_CSRF_COOKIE_PATH = '/api/mcp';
  */
 router.get('/tools', requireJwtAuth, async (req, res) => {
   return getMCPTools(req, res);
+});
+
+/**
+ * FILERO Authentication: Validate credentials against a FILERO instance
+ * Calls the FILERO login API to verify the username/password are correct.
+ * Does NOT store credentials — the frontend uses the existing updateUserPlugins
+ * endpoint to save them after successful validation.
+ *
+ * @route POST /api/mcp/filero-auth/validate
+ */
+router.post('/filero-auth/validate', requireJwtAuth, async (req, res) => {
+  try {
+    const { username, password, instance } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ success: false, message: 'Username and password are required' });
+    }
+
+    // Resolve instance shorthand to full URL
+    const instanceMap = {
+      lwk: 'https://lwk.contiss.de',
+      ctra: 'https://ctra.contiss.de',
+    };
+    const host = (instanceMap[instance] || instanceMap.lwk).replace(/\/$/, '');
+    const loginUrl = `${host}/csp/lwp/filerorest/account/login`;
+
+    try {
+      const loginResp = await axios.post(loginUrl, { username, password }, { timeout: 15000 });
+
+      if (loginResp.status === 200) {
+        const hexTicket = typeof loginResp.data === 'string'
+          ? loginResp.data.trim().replace(/^"|"$/g, '')
+          : String(loginResp.data);
+
+        if (hexTicket && hexTicket.length > 0) {
+          return res.json({ success: true });
+        }
+      }
+
+      return res.status(401).json({ success: false, message: 'Invalid FILERO credentials' });
+    } catch (loginError) {
+      if (loginError.response) {
+        const status = loginError.response.status;
+        if (status === 401 || status === 403) {
+          return res.status(401).json({ success: false, message: 'Invalid FILERO credentials' });
+        }
+      }
+      logger.error('[FILERO Auth] Login request failed:', loginError.message);
+      return res.status(502).json({
+        success: false,
+        message: 'Could not reach FILERO server. Please try again later.',
+      });
+    }
+  } catch (error) {
+    logger.error('[FILERO Auth] Validate error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+/**
+ * FILERO Authentication: Check if the current user has stored FILERO credentials.
+ * FILERO is a single instance — the user is considered authenticated if ANY
+ * FILERO server has valid stored credentials.
+ *
+ * Returns { authenticated: boolean, servers: Record<string, boolean> }
+ *
+ * @route GET /api/mcp/filero-auth/status
+ */
+router.get('/filero-auth/status', requireJwtAuth, async (req, res) => {
+  try {
+    const user = req.user;
+    if (!user?.id) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+
+    const allConfigs = await getMCPServersRegistry().getAllServerConfigs(user.id);
+    if (!allConfigs) {
+      return res.json({ authenticated: true, servers: {} });
+    }
+
+    // Find all servers with isFilero: true
+    const fileroServers = Object.entries(allConfigs)
+      .filter(([, config]) => config.isFilero === true)
+      .map(([name]) => name);
+
+    if (fileroServers.length === 0) {
+      return res.json({ authenticated: true, servers: {} });
+    }
+
+    const servers = {};
+    let anyAuthenticated = false;
+
+    for (const serverName of fileroServers) {
+      const serverConfig = allConfigs[serverName];
+      const pluginKey = `${Constants.mcp_prefix}${serverName}`;
+      let serverAuth = true;
+
+      if (serverConfig.customUserVars && typeof serverConfig.customUserVars === 'object') {
+        for (const varName of Object.keys(serverConfig.customUserVars)) {
+          try {
+            const value = await getUserPluginAuthValue(user.id, varName, false, pluginKey);
+            if (!value || value.length === 0) {
+              serverAuth = false;
+              break;
+            }
+          } catch {
+            serverAuth = false;
+            break;
+          }
+        }
+      }
+
+      servers[serverName] = serverAuth;
+      if (serverAuth) {
+        anyAuthenticated = true;
+      }
+    }
+
+    // FILERO is ONE instance: authenticated if ANY server has creds
+    res.json({ authenticated: anyAuthenticated, servers });
+  } catch (error) {
+    logger.error('[FILERO Auth] Status check error:', error);
+    res.status(500).json({ error: 'Failed to check FILERO auth status' });
+  }
 });
 
 /**

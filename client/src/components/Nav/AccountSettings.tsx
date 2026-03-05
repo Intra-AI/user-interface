@@ -1,10 +1,23 @@
-import { useState, memo } from 'react';
+import React, { useState, useMemo, useCallback, memo } from 'react';
 import { useRecoilState } from 'recoil';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import * as Select from '@ariakit/react/select';
-import { FileText, LogOut, HardDrive, HelpCircle } from 'lucide-react';
-import { PermissionTypes, Permissions } from 'librechat-data-provider';
-import { LinkIcon, GearIcon, DropdownMenuSeparator, Avatar } from '@librechat/client';
-import { useGetStartupConfig, useGetUserBalance, useGetUserStorageUsage } from '~/data-provider';
+import { FileText, LogOut, HardDrive, HelpCircle, KeyRound, LogIn } from 'lucide-react';
+import {
+  Constants,
+  QueryKeys,
+  MutationKeys,
+  PermissionTypes,
+  Permissions,
+  dataService,
+} from 'librechat-data-provider';
+import type { TUpdateUserPlugins } from 'librechat-data-provider';
+import { LinkIcon, GearIcon, DropdownMenuSeparator, Avatar, useToastContext } from '@librechat/client';
+import {
+  useGetStartupConfig,
+  useGetUserBalance,
+  useGetUserStorageUsage,
+} from '~/data-provider';
 import StorageLimitDialog from '~/components/Files/StorageLimitDialog';
 import FilesView from '~/components/Chat/Input/Files/FilesView';
 import { useAuthContext } from '~/hooks/AuthContext';
@@ -38,6 +51,59 @@ function AccountSettings() {
   const [showFiles, setShowFiles] = useRecoilState(store.showFiles);
   const [showSupport, setShowSupport] = useRecoilState(store.showSupport);
   const [storageLimitDialog, setStorageLimitDialog] = useRecoilState(store.showStorageLimitDialog);
+  const [showFileroLogin, setShowFileroLogin] = useRecoilState(store.showFileroLogin);
+  const queryClient = useQueryClient();
+  const { showToast } = useToastContext();
+
+  // Fetch FILERO auth status directly from the backend — NO dependency on MCP tools loading.
+  // The backend discovers FILERO servers itself and returns { authenticated, servers: { name: bool } }.
+  // enabled: only need isAuthenticated; no waiting for MCP tools.
+  const { data: fileroAuthStatus } = useQuery(
+    [QueryKeys.fileroAuthStatus],
+    () => dataService.getFileroAuthStatus(),
+    {
+      enabled: !!isAuthenticated,
+      refetchOnMount: 'always',
+      refetchOnWindowFocus: true,
+      staleTime: 30 * 1000,
+    },
+  );
+
+  // Derive FILERO server names and auth state from the status response
+  const allFileroServers = useMemo(
+    () => Object.keys(fileroAuthStatus?.servers ?? {}),
+    [fileroAuthStatus],
+  );
+  const hasFileroServers = allFileroServers.length > 0;
+  const fileroAuthenticated = fileroAuthStatus?.authenticated ?? false;
+
+  const updatePluginsMutation = useMutation(
+    (payload: TUpdateUserPlugins) => dataService.updateUserPlugins(payload),
+    { mutationKey: [MutationKeys.updatePreset] },
+  );
+
+  const handleFileroLogout = useCallback(async () => {
+    try {
+      // Delete credentials for ALL FILERO servers
+      const deletePromises = allFileroServers.map((serverName) =>
+        updatePluginsMutation.mutateAsync({
+          pluginKey: `${Constants.mcp_prefix}${serverName}`,
+          action: 'uninstall',
+          auth: {},
+        }),
+      );
+      await Promise.all(deletePromises);
+
+      // Invalidate caches — useQuery will auto-refetch
+      queryClient.invalidateQueries([QueryKeys.fileroAuthStatus]);
+      queryClient.invalidateQueries([QueryKeys.mcpAuthValues]);
+      queryClient.invalidateQueries([QueryKeys.mcpConnectionStatus]);
+
+      showToast({ message: 'FILERO-Abmeldung erfolgreich.', status: 'success' });
+    } catch (err) {
+      showToast({ message: 'Fehler bei der FILERO-Abmeldung.', status: 'error' });
+    }
+  }, [allFileroServers, updatePluginsMutation, queryClient, showToast]);
 
   const hasHelpFaqAccess = useHasAccess({
     permissionType: PermissionTypes.HELP_FAQ,
@@ -155,6 +221,26 @@ function AccountSettings() {
           <GearIcon className="icon-md" aria-hidden="true" />
           {localize('com_nav_settings')}
         </Select.SelectItem>
+        {hasFileroServers && fileroAuthenticated && (
+          <Select.SelectItem
+            value=""
+            onClick={handleFileroLogout}
+            className="select-item text-sm"
+          >
+            <KeyRound className="icon-md" aria-hidden="true" />
+            FILERO Abmelden
+          </Select.SelectItem>
+        )}
+        {hasFileroServers && !fileroAuthenticated && (
+          <Select.SelectItem
+            value=""
+            onClick={() => setShowFileroLogin(true)}
+            className="select-item text-sm"
+          >
+            <LogIn className="icon-md" aria-hidden="true" />
+            FILERO Anmelden
+          </Select.SelectItem>
+        )}
         <DropdownMenuSeparator />
         <Select.SelectItem
           aria-selected={true}

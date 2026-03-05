@@ -62,6 +62,7 @@ export enum QueryKeys {
   /* MCP Servers */
   mcpServers = 'mcpServers',
   mcpServer = 'mcpServer',
+  fileroAuthStatus = 'fileroAuthStatus',
   /* Active Jobs */
   activeJobs = 'activeJobs',
   /* Agent API Keys */
@@ -102,4 +103,5 @@ export enum MutationKeys {
   verifyTwoFactor = 'verifyTwoFactor',
   updateMemoryPreferences = 'updateMemoryPreferences',
   submitSupportRequest = 'submitSupportRequest',
+  fileroAuthValidate = 'fileroAuthValidate',
 }

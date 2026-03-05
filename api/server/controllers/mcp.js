@@ -124,6 +124,7 @@ const getMCPTools = async (req, res) => {
           authenticated: true,
           authConfig: [],
           tools: [],
+          isFilero: !!rawServerConfig?.isFilero,
         };
 
         // Set authentication config once for the server
