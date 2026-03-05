@@ -26,6 +26,8 @@ const rolePermissionsSchema = new Schema(
       [Permissions.SHARED_GLOBAL]: { type: Boolean },
       [Permissions.USE]: { type: Boolean },
       [Permissions.CREATE]: { type: Boolean },
+      [Permissions.SHARE]: { type: Boolean },
+      [Permissions.SHARE_PUBLIC]: { type: Boolean },
     },
     [PermissionTypes.MULTI_CONVO]: {
       [Permissions.USE]: { type: Boolean },

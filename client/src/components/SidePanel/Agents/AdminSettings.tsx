@@ -53,9 +53,9 @@ const LabelController: React.FC<LabelControllerProps> = ({
       render={({ field }) => (
         <Switch
           {...field}
-          checked={field.value}
+          checked={field.value ?? false}
           onCheckedChange={field.onChange}
-          value={field.value.toString()}
+          value={(field.value ?? false).toString()}
         />
       )}
     />
@@ -79,11 +79,12 @@ const AdminSettings = () => {
   const [selectedRole, setSelectedRole] = useState<SystemRoles>(SystemRoles.USER);
 
   const defaultValues = useMemo(() => {
+    const fallback = roleDefaults[selectedRole].permissions[PermissionTypes.AGENTS];
     const rolePerms = roles?.[selectedRole]?.permissions;
     if (rolePerms) {
-      return rolePerms[PermissionTypes.AGENTS];
+      return { ...fallback, ...rolePerms[PermissionTypes.AGENTS] };
     }
-    return roleDefaults[selectedRole].permissions[PermissionTypes.AGENTS];
+    return fallback;
   }, [roles, selectedRole]);
 
   const {
@@ -99,11 +100,12 @@ const AdminSettings = () => {
   });
 
   useEffect(() => {
+    const fallback = roleDefaults[selectedRole].permissions[PermissionTypes.AGENTS];
     const value = roles?.[selectedRole]?.permissions?.[PermissionTypes.AGENTS];
     if (value) {
-      reset(value);
+      reset({ ...fallback, ...value });
     } else {
-      reset(roleDefaults[selectedRole].permissions[PermissionTypes.AGENTS]);
+      reset(fallback);
     }
   }, [roles, selectedRole, reset]);
 
@@ -115,6 +117,10 @@ const AdminSettings = () => {
     {
       agentPerm: Permissions.SHARED_GLOBAL,
       label: localize('com_ui_agents_allow_share'),
+    },
+    {
+      agentPerm: Permissions.SHARE,
+      label: localize('com_ui_agents_allow_share_resource'),
     },
     {
       agentPerm: Permissions.CREATE,
