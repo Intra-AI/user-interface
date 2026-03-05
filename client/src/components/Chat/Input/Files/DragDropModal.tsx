@@ -96,7 +96,7 @@ const DragDropModal = ({ onOptionSelect, setShowModal, files, isVisible }: DragD
         label: localize('com_ui_upload_provider'),
         value: undefined,
         icon: <FileImageIcon className="icon-md" />,
-        condition: validFileTypes,
+        condition: validFileTypes && false, //disable provider upload temporarily until model is able to comprehend
       });
     } else {
       // Only show image upload option if all files are images and provider doesn't support documents
@@ -107,7 +107,7 @@ const DragDropModal = ({ onOptionSelect, setShowModal, files, isVisible }: DragD
         condition: files.every((file) => getFileType(file)?.startsWith('image/')),
       });
     }
-    if (capabilities.fileSearchEnabled && fileSearchAllowedByAgent) {
+    if (capabilities.fileSearchEnabled) {
       _options.push({
         label: localize('com_ui_upload_file_search'),
         value: EToolResources.file_search,
@@ -139,7 +139,6 @@ const DragDropModal = ({ onOptionSelect, setShowModal, files, isVisible }: DragD
     capabilities,
     useResponsesApi,
     codeAllowedByAgent,
-    fileSearchAllowedByAgent,
   ]);
 
   if (!isVisible) {
