@@ -114,6 +114,7 @@ export type MCPServer = {
   authenticated: boolean;
   authConfig: s.TPluginAuthConfig[];
   tools: MCPTool[];
+  isFilero?: boolean;
 };
 
 export type MCPServersResponse = {

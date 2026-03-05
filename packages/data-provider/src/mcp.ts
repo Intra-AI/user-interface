@@ -99,6 +99,13 @@ const BaseOptionsSchema = z.object({
       }),
     )
     .optional(),
+  /**
+   * Whether this MCP server requires FILERO user-level authentication.
+   * When true, users are prompted with a FILERO login modal before they
+   * can interact with agents that use tools from this server.
+   * Credentials are stored encrypted per-user and injected via headers.
+   */
+  isFilero: z.boolean().optional(),
 });
 
 export const StdioOptionsSchema = BaseOptionsSchema.extend({

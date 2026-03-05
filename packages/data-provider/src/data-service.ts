@@ -203,6 +203,21 @@ export const reinitializeMCPServer = (serverName: string) => {
   return request.post(endpoints.mcpReinitialize(serverName));
 };
 
+/* FILERO Authentication */
+
+export const validateFileroAuth = (
+  payload: { username: string; password: string; instance: string },
+): Promise<{ success: boolean; message?: string }> => {
+  return request.post(endpoints.fileroAuthValidate(), payload);
+};
+
+export const getFileroAuthStatus = (): Promise<{
+  authenticated: boolean;
+  servers: Record<string, boolean>;
+}> => {
+  return request.get(endpoints.fileroAuthStatus());
+};
+
 export const bindMCPOAuth = (serverName: string): Promise<{ success: boolean }> => {
   return request.post(endpoints.mcpOAuthBind(serverName));
 };

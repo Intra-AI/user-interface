@@ -26,6 +26,8 @@ import {
   TermsAndConditionsModal,
   InitialTwoFactorModal 
 } from '~/components/ui';
+import FileroLoginModal from '~/components/Filero/FileroLoginModal';
+import useFileroAuth from '~/hooks/Filero/useFileroAuth';
 import { Nav, MobileNav } from '~/components/Nav';
 import { ContissLayout } from '~/components/Contiss';
 import { useHealthCheck } from '~/data-provider';
@@ -61,6 +63,15 @@ export default function Root() {
   });
 
   useSearchEnabled(isAuthenticated);
+
+  // FILERO Authentication Gate
+  const {
+    showModal: showFileroModal,
+    allFileroServers: fileroServerNames,
+    onSuccess: onFileroSuccess,
+    onCancel: onFileroCancel,
+    setShowModal: setShowFileroModal,
+  } = useFileroAuth(agentsMap);
 
   // Determine what to show based on priority: Terms > 2FA
   useEffect(() => {
@@ -133,6 +144,15 @@ export default function Root() {
           <InitialTwoFactorModal
             open={showTwoFactor}
             onComplete={handleTwoFactorComplete}
+          />
+
+          {/* FILERO Authentication Modal */}
+          <FileroLoginModal
+            open={showFileroModal}
+            onOpenChange={setShowFileroModal}
+            onSuccess={onFileroSuccess}
+            onCancel={onFileroCancel}
+            fileroServers={fileroServerNames}
           />
         </AssistantsMapContext.Provider>
       </FileMapContext.Provider>
