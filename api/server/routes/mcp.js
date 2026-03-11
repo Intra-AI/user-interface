@@ -76,11 +76,16 @@ router.post('/filero-auth/validate', requireJwtAuth, async (req, res) => {
 
     // Resolve instance shorthand to full URL
     const instanceMap = {
-      lwk: 'https://lwk.contiss.de',
-      ctra: 'https://ctra.contiss.de',
+      lwk:  'https://lwk.contiss.de',
+      ctra: 'https://cnt.contiss.de',   // was: https://ctra.contiss.de
     };
-    const host = (instanceMap[instance] || instanceMap.lwk).replace(/\/$/, '');
-    const loginUrl = `${host}/csp/lwp/filerorest/account/login`;
+    const cspAppMap = {
+      lwk:  'lwp',
+      ctra: 'contiss',
+    };
+    const host    = (instanceMap[instance] || instanceMap.lwk).replace(/\/$/, '');
+    const cspApp  = cspAppMap[instance] || 'lwp';
+    const loginUrl = `${host}/csp/${cspApp}/filerorest/account/login`;
 
     try {
       const loginResp = await axios.post(loginUrl, { username, password }, { timeout: 15000 });
