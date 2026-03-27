@@ -100,7 +100,17 @@ const FileroLoginModal = ({
 
         await Promise.all(savePromises);
 
-        // Step 3: Invalidate relevant queries
+        // Step 3: Reinitialize FILERO-Upload connections so streamable-http reconnects
+        // (updateUserPlugins disconnects MCP servers; reinitialize re-establishes them)
+        // Fire-and-forget: credentials are already saved even if reinitialize fails
+        const reinitPromises = fileroServers.map((serverName) =>
+          dataService.reinitializeMCPServer(serverName).catch(() => {
+            // Silently ignore — connection can be re-established on next tool use
+          }),
+        );
+        await Promise.all(reinitPromises);
+
+        // Step 4: Invalidate relevant queries
         queryClient.invalidateQueries([QueryKeys.mcpAuthValues]);
         queryClient.invalidateQueries([QueryKeys.mcpTools]);
         queryClient.invalidateQueries([QueryKeys.fileroAuthStatus]);

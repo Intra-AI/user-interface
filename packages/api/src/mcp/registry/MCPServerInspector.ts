@@ -7,6 +7,7 @@ import { MCPConnectionFactory } from '~/mcp/MCPConnectionFactory';
 import { MCPDomainNotAllowedError } from '~/mcp/errors';
 import { detectOAuthRequirement } from '~/mcp/oauth';
 import { isEnabled } from '~/utils';
+import { logger } from '@librechat/data-schemas';
 
 /**
  * Inspects MCP servers to discover their metadata, capabilities, and tools.
@@ -54,6 +55,13 @@ export class MCPServerInspector {
   private async inspectServer(): Promise<void> {
     await this.detectOAuth();
 
+    if (this.hasUnresolvedCustomUserVarPlaceholders()) {
+      logger.info(
+        `[MCP][${this.serverName}] Deferring startup inspection until user credentials are available`,
+      );
+      return;
+    }
+
     if (this.config.startup !== false && !this.config.requiresOAuth) {
       let tempConnection = false;
       if (!this.connection) {
@@ -73,6 +81,37 @@ export class MCPServerInspector {
 
       if (tempConnection) await this.connection.disconnect();
     }
+  }
+
+  private hasUnresolvedCustomUserVarPlaceholders(): boolean {
+    const customUserVars = this.config.customUserVars;
+    if (!customUserVars || Object.keys(customUserVars).length === 0) {
+      return false;
+    }
+
+    const customVarKeys = Object.keys(customUserVars);
+    const valuesToInspect: string[] = [];
+
+    if (this.config.url) {
+      valuesToInspect.push(this.config.url);
+    }
+
+    if (this.config.headers) {
+      valuesToInspect.push(...Object.values(this.config.headers));
+    }
+
+    if ('env' in this.config && this.config.env) {
+      valuesToInspect.push(...Object.values(this.config.env));
+    }
+
+    if ('args' in this.config && Array.isArray(this.config.args)) {
+      valuesToInspect.push(...this.config.args);
+    }
+
+    return customVarKeys.some((key) => {
+      const placeholder = `{{${key}}}`;
+      return valuesToInspect.some((value) => typeof value === 'string' && value.includes(placeholder));
+    });
   }
 
   private async detectOAuth(): Promise<void> {

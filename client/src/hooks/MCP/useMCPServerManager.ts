@@ -595,7 +595,9 @@ export function useMCPServerManager({
       };
 
       const hasCustomUserVars =
-        serverConfig?.customUserVars && Object.keys(serverConfig.customUserVars).length > 0;
+        !!serverConfig?.customUserVars &&
+        Object.keys(serverConfig.customUserVars).length > 0 &&
+        !serverConfig.isFilero;
 
       return {
         serverName,

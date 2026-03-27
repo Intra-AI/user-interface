@@ -194,8 +194,9 @@ function MCPToolSelectDialog({
     const serverConfig = availableMCPServersMap?.[serverName];
     const hasCustomUserVars =
       serverConfig?.customUserVars && Object.keys(serverConfig.customUserVars).length > 0;
+    const shouldConfigureBeforeAdd = hasCustomUserVars && !serverConfig?.isFilero;
 
-    if (hasCustomUserVars) {
+    if (shouldConfigureBeforeAdd) {
       setConfiguringServer(serverName);
     } else {
       await handleDirectAdd(serverName);

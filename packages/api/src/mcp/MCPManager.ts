@@ -308,22 +308,11 @@ Please follow these instructions when using tools from the respective MCP server
         body: requestBody,
       });
 
-      // Debug: Log resolved headers and customUserVars for FILERO troubleshooting
       if ('headers' in currentOptions) {
-        const headerKeys = Object.keys(currentOptions.headers || {});
-        const headersSummary: Record<string, string> = {};
-        for (const k of headerKeys) {
-          const v = (currentOptions.headers as Record<string, string>)[k];
-          headersSummary[k] = v && v.length > 8 ? v.slice(0, 8) + '...' : v || '(empty)';
-        }
-        logger.info(
-          `${logPrefix}[${toolName}] Resolved headers: ${JSON.stringify(headersSummary)}, customUserVars keys: ${JSON.stringify(Object.keys(customUserVars || {}))}`,
+        logger.debug(
+          `${logPrefix}[${toolName}] Setting ${Object.keys(currentOptions.headers || {}).length} request header(s)`,
         );
         connection.setRequestHeaders(currentOptions.headers || {});
-      } else {
-        logger.info(
-          `${logPrefix}[${toolName}] No headers in config. customUserVars keys: ${JSON.stringify(Object.keys(customUserVars || {}))}`,
-        );
       }
 
       const result = await connection.client.request(

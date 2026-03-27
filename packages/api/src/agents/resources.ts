@@ -100,7 +100,10 @@ const categorizeFileForToolResources = ({
     return;
   }
 
-  if (file.embedded === true) {
+  if (file.embedded === true || file.embedded === false) {
+    // embedded: true  → successfully vectorized, available for semantic search
+    // embedded: false → embedding failed (e.g. image-only PDF), but file is on disk;
+    //                   still add to file_search resources so the LLM knows the filename
     addFileToResource({
       file,
       resourceType: EToolResources.file_search,

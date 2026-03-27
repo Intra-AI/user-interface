@@ -2,7 +2,7 @@ const { logger } = require('@librechat/data-schemas');
 const { CacheKeys, Constants } = require('librechat-data-provider');
 const { findToken, createToken, updateToken, deleteTokens } = require('~/models');
 const { updateMCPServerTools } = require('~/server/services/Config');
-const { getMCPManager, getFlowStateManager } = require('~/config');
+const { getMCPManager, getFlowStateManager, getMCPServersRegistry } = require('~/config');
 const { getLogStores } = require('~/cache');
 
 /**
@@ -42,6 +42,31 @@ async function reinitMCPServer({
 
   try {
     const customUserVars = userMCPAuthMap?.[`${Constants.mcp_prefix}${serverName}`];
+    const serverConfig = await getMCPServersRegistry().getServerConfig(serverName, user.id);
+    const isFileroServer = !!serverConfig?.isFilero;
+    const requiredCustomVars = Object.keys(serverConfig?.customUserVars ?? {});
+    const missingCustomVars = requiredCustomVars.filter((key) => {
+      const value = customUserVars?.[key];
+      return typeof value !== 'string' || value.trim().length === 0;
+    });
+
+    if (isFileroServer && missingCustomVars.length > 0) {
+      logger.info(
+        `[MCP Reinitialize] Deferring FILERO initialization for ${serverName} until user login is completed`,
+      );
+
+      return {
+        availableTools,
+        success: true,
+        message: `MCP server '${serverName}' deferred until FILERO login is completed`,
+        oauthRequired: false,
+        serverName,
+        oauthUrl: null,
+        tools: [],
+        deferred: true,
+      };
+    }
+
     const flowManager = _flowManager ?? getFlowStateManager(getLogStores(CacheKeys.FLOWS));
     const mcpManager = getMCPManager();
     const tokenMethods = { findToken, updateToken, createToken, deleteTokens };
