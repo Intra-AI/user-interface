@@ -693,9 +693,19 @@ async function getServerConnectionStatus(
 
   // connection state overrides specific to OAuth servers
   if (baseConnectionState === 'disconnected' && oauthServers.has(serverName)) {
-    // check if server is actively being reconnected
-    const oauthReconnectionManager = getOAuthReconnectionManager();
-    if (oauthReconnectionManager.isReconnecting(userId, serverName)) {
+    // Check if server is actively being reconnected. During startup this manager
+    // may not be initialized yet, so fall back to OAuth flow status checks.
+    let isReconnecting = false;
+    try {
+      const oauthReconnectionManager = getOAuthReconnectionManager();
+      isReconnecting = oauthReconnectionManager.isReconnecting(userId, serverName);
+    } catch (error) {
+      if (error?.message !== 'OAuthReconnectionManager not initialized') {
+        throw error;
+      }
+    }
+
+    if (isReconnecting) {
       finalConnectionState = 'connecting';
     } else {
       const { hasActiveFlow, hasFailedFlow } = await checkOAuthFlowStatus(userId, serverName);

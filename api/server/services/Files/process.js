@@ -619,15 +619,21 @@ const processAgentFileUpload = async ({ req, res, metadata }) => {
       entity_id,
     });
 
-    // SECOND: Upload to Vector DB
+    // SECOND: Upload to Vector DB (non-fatal — file is already stored)
     const { uploadVectors } = require('./VectorDB/crud');
-
-    embeddingResult = await uploadVectors({
-      req,
-      file,
-      file_id,
-      entity_id,
-    });
+    try {
+      embeddingResult = await uploadVectors({
+        req,
+        file,
+        file_id,
+        entity_id,
+      });
+    } catch (err) {
+      logger.warn(
+        `Vector embedding failed for file ${file.originalname}, continuing without embedding: ${err.message}`,
+      );
+      embeddingResult = { embedded: false, filename: file.originalname };
+    }
 
     // Vector status will be stored at root level, no need for metadata
     fileInfoMetadata = {};
