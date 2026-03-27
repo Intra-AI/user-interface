@@ -18,6 +18,7 @@ const { updateInterfacePermissions } = require('~/models/interface');
 const { checkMigrations } = require('./services/start/migration');
 const { startScheduledCleanup } = require('./services/cleanup');
 const initializeMCPs = require('./services/initializeMCPs');
+const initializeOAuthReconnectManager = require('./services/initializeOAuthReconnectManager');
 const configureSocialLogins = require('./socialLogins');
 const { getAppConfig } = require('./services/Config');
 const staticCache = require('./utils/staticCache');
@@ -178,7 +179,13 @@ const startServer = async () => {
       logger.info(`Server listening at http://${host == '0.0.0.0' ? 'localhost' : host}:${port}`);
     }
 
-    initializeMCPs().then(() => checkMigrations());
+    (async () => {
+      await initializeMCPs();
+      await initializeOAuthReconnectManager();
+      await checkMigrations();
+    })().catch((err) => {
+      logger.error('[startup] MCP/OAuth initialization failed:', err);
+    });
     
     // Start scheduled cleanup of old conversations
     // Run once per day and delete conversations older than 90 days

@@ -78,6 +78,16 @@ export class MCPServersInitializer {
         'CACHE',
       );
       MCPServersInitializer.logParsedConfig(serverName, result.config);
+
+      if (
+        rawConfig.customUserVars &&
+        Object.keys(rawConfig.customUserVars).length > 0 &&
+        (!result.config.toolFunctions || Object.keys(result.config.toolFunctions).length === 0)
+      ) {
+        logger.info(
+          `${MCPServersInitializer.prefix(serverName)} Tool discovery deferred until user credentials are provided`,
+        );
+      }
     } catch (error) {
       logger.error(`${MCPServersInitializer.prefix(serverName)} Failed to initialize:`, error);
     }
