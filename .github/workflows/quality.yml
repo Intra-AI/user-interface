@@ -1,0 +1,61 @@
+name: Quality
+
+on:
+  workflow_call: {}
+  push:
+    branches: [main, dev]
+  pull_request: {}
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Full quality suite
+    runs-on: intra-public-ci
+    timeout-minutes: 90
+    env:
+      NODE_ENV: CI
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af
+        with:
+          node-version: '20'
+          cache: npm
+      - name: Install frozen dependencies
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Build workspaces and production frontend
+        run: npm run frontend
+      - name: Prepare isolated API test configuration
+        run: |
+          mkdir -p api/data
+          printf '{}\n' > api/data/auth.json
+          cp api/test/.env.test.example api/test/.env.test
+      - name: Test backend and workspace packages
+        run: |
+          npm run test:api
+          npm --workspace packages/data-provider run test:ci
+          npm --workspace packages/data-schemas run test:ci
+          npm --workspace packages/api run test:ci
+          npm run test:client
+
+  gate:
+    name: CI Gate
+    if: always()
+    needs: [quality]
+    runs-on: intra-public-ci
+    timeout-minutes: 5
+    steps:
+      - name: Require the full suite
+        env:
+          RESULT: ${{ needs.quality.result }}
+        run: test "$RESULT" = success

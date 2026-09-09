@@ -7,9 +7,13 @@ on:
     types: [locize/versionPublished]
 
 jobs:
+  verify:
+    uses: ./.github/workflows/quality.yml
   sync-translations:
+    needs: verify
+    if: github.ref == 'refs/heads/main'
     name: Sync Translation Keys with Locize
-    runs-on: ubuntu-latest
+    runs-on: intra-public-ci
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -36,7 +40,7 @@ jobs:
 
   create-pull-request:
     name: Create Translation PR on Version Published
-    runs-on: ubuntu-latest
+    runs-on: intra-public-ci
     needs: sync-translations
     permissions:
       contents: write
@@ -48,14 +52,14 @@ jobs:
 
       # 2. Download translation files from locize.
       - name: Download Translations from locize
-        uses: locize/download@v2
+        uses: locize/download@695b84767bb41b44f766754f10c491420b1b239a
         with:
           project-id: ${{ secrets.LOCIZE_PROJECT_ID }}
           path: "client/src/locales"
 
       # 3. Create a Pull Request using built-in functionality.
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           sign-commits: true

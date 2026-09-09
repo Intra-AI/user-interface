@@ -7,20 +7,24 @@ env:
   RUNNER_VERSION: 2.293.0
 
 jobs:
+  verify:
+    uses: ./.github/workflows/quality.yml
   build-and-push:
-    runs-on: ubuntu-latest
+    needs: verify
+    if: github.ref == 'refs/heads/main'
+    runs-on: intra-public-ci
     steps:
       # checkout the repo
       - name: 'Checkout GitHub Action'
-        uses: actions/checkout@main
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: 'Login via Azure CLI'
-        uses: azure/login@v1
+        uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: 'Build GitHub Runner container image'
-        uses: azure/docker-login@v1
+        uses: azure/docker-login@15c4aadf093404726ab2ff205b2cdd33fa6d054c
         with:
           login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
           username: ${{ secrets.REGISTRY_USERNAME }}
@@ -29,7 +33,7 @@ jobs:
           docker build --build-arg RUNNER_VERSION=${{ env.RUNNER_VERSION }} -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/pwd9000-github-runner-lin:${{ env.RUNNER_VERSION }} .
 
       - name: 'Push container image to ACR'
-        uses: azure/docker-login@v1
+        uses: azure/docker-login@15c4aadf093404726ab2ff205b2cdd33fa6d054c
         with:
           login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
           username: ${{ secrets.REGISTRY_USERNAME }}

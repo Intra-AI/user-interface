@@ -7,14 +7,18 @@ on:
       - "chart-*"
 
 jobs:
+  verify:
+    uses: ./.github/workflows/quality.yml
   release:
+    needs: verify
+    if: startsWith(github.ref, 'refs/tags/')
     permissions:
       contents: write
       packages: write
-    runs-on: ubuntu-latest
+    runs-on: intra-public-ci
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
 
@@ -24,7 +28,7 @@ jobs:
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
       - name: Install Helm
-        uses: azure/setup-helm@v4
+        uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
       
@@ -52,7 +56,7 @@ jobs:
       # Run Helm OCI Charts Releaser
       # This is for the librechat chart
       - name: Release Helm OCI Charts for librechat
-        uses: appany/helm-oci-chart-releaser@v0.4.2
+        uses: appany/helm-oci-chart-releaser@dd0551c15abe174eb57824ecde62e976091094da
         with:
           name: librechat
           repository: ${{ github.actor }}/librechat-chart

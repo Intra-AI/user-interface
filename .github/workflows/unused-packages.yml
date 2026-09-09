@@ -11,7 +11,7 @@ on:
 
 jobs:
   detect-unused-packages:
-    runs-on: ubuntu-latest
+    runs-on: intra-public-ci
     permissions:
       pull-requests: write
 
