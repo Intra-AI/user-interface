@@ -14,12 +14,16 @@ jobs:
     if: github.ref == 'refs/heads/main'
     name: Sync Translation Keys with Locize
     runs-on: intra-public-ci
+    timeout-minutes: 30
+    environment: production
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
 
       - name: Set Up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: 20
 
@@ -41,6 +45,8 @@ jobs:
   create-pull-request:
     name: Create Translation PR on Version Published
     runs-on: intra-public-ci
+    timeout-minutes: 30
+    environment: production
     needs: sync-translations
     permissions:
       contents: write
@@ -48,7 +54,9 @@ jobs:
     steps:
       # 1. Check out the repository.
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
 
       # 2. Download translation files from locize.
       - name: Download Translations from locize
@@ -66,7 +74,6 @@ jobs:
           commit-message: "🌍 i18n: Update translation.json with latest translations"
           base: main
           branch: i18n/locize-translation-update
-          reviewers: danny-avila
           title: "🌍 i18n: Update translation.json with latest translations"
           body: |
             **Description**:

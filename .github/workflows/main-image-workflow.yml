@@ -10,6 +10,11 @@ jobs:
     needs: verify
     if: github.ref == 'refs/heads/main'
     runs-on: intra-public-ci
+    timeout-minutes: 90
+    environment: production
+    permissions:
+      contents: read
+      packages: write
     strategy:
       matrix:
         include:
@@ -23,11 +28,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
 
       - name: Fetch tags and set the latest tag
         run: |
           git fetch --tags
-          echo "LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)" >> $GITHUB_ENV
+          latest_commit=$(git rev-list --tags --max-count=1)
+          latest_tag=$(git describe --tags "$latest_commit")
+          echo "LATEST_TAG=$latest_tag" >> "$GITHUB_ENV"
 
       # Set up QEMU
       - name: Set up QEMU

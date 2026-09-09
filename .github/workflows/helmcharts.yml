@@ -16,11 +16,19 @@ jobs:
       contents: write
       packages: write
     runs-on: intra-public-ci
+    timeout-minutes: 45
+    environment: production
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
+          persist-credentials: false
+
+      - name: Require tag commit to be on protected main
+        run: |
+          git fetch --no-tags origin main
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main
 
       - name: Configure Git
         run: |
@@ -47,7 +55,7 @@ jobs:
 
       # Log in to GitHub Container Registry
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -68,7 +76,7 @@ jobs:
       
       # this is for the librechat-rag-api chart
       - name: Release Helm OCI Charts for librechat-rag-api
-        uses: appany/helm-oci-chart-releaser@v0.4.2
+        uses: appany/helm-oci-chart-releaser@dd0551c15abe174eb57824ecde62e976091094da
         with:
           name: librechat-rag-api
           repository: ${{ github.actor }}/librechat-chart

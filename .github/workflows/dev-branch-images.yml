@@ -17,6 +17,11 @@ jobs:
     needs: verify
     if: github.ref == 'refs/heads/dev'
     runs-on: intra-public-ci
+    timeout-minutes: 90
+    environment: production
+    permissions:
+      contents: read
+      packages: write
     strategy:
       matrix:
         include:
@@ -31,6 +36,8 @@ jobs:
       # Check out the repository
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
 
       # Set up QEMU
       - name: Set up QEMU

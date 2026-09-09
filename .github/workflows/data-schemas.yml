@@ -20,22 +20,24 @@ jobs:
     needs: verify
     if: github.ref == 'refs/heads/main'
     runs-on: intra-public-ci
+    timeout-minutes: 30
+    environment: production
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
       
       - name: Use Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '20.x'
+          registry-url: https://registry.npmjs.org
           
       - name: Install dependencies
         run: cd packages/data-schemas && npm ci
         
       - name: Build
         run: cd packages/data-schemas && npm run build
-        
-      - name: Set up npm authentication
-        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.PUBLISH_NPM_TOKEN }}" > ~/.npmrc
         
       - name: Check version change
         id: check
@@ -45,10 +47,10 @@ jobs:
           PUBLISHED_VERSION=$(npm view @librechat/data-schemas version 2>/dev/null || echo "0.0.0")
           if [ "$PACKAGE_VERSION" = "$PUBLISHED_VERSION" ]; then
             echo "No version change, skipping publish"
-            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "skip=true" >> "$GITHUB_OUTPUT"
           else
             echo "Version changed, proceeding with publish"
-            echo "skip=false" >> $GITHUB_OUTPUT
+            echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
             
       - name: Pack package
@@ -59,4 +61,6 @@ jobs:
       - name: Publish
         if: steps.check.outputs.skip != 'true'
         working-directory: packages/data-schemas
-        run: npm publish *.tgz --access public
+        run: npm publish ./*.tgz --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.PUBLISH_NPM_TOKEN }}

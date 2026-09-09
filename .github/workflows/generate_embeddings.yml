@@ -14,8 +14,12 @@ jobs:
     needs: verify
     if: github.ref == 'refs/heads/main'
     runs-on: intra-public-ci
+    timeout-minutes: 30
+    environment: production
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
       - uses: supabase/embeddings-generator@11ad9d1643c95eedeab869935794fdefd0a9768d
         with:
           supabase-url: ${{ secrets.SUPABASE_URL }}
