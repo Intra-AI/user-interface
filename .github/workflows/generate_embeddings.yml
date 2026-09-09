@@ -8,11 +8,19 @@ on:
       - 'docs/**'
 
 jobs:
+  verify:
+    uses: ./.github/workflows/quality.yml
   generate:
-    runs-on: ubuntu-latest
+    needs: verify
+    if: github.ref == 'refs/heads/main'
+    runs-on: intra-public-ci
+    timeout-minutes: 30
+    environment: production
     steps:
-      - uses: actions/checkout@v3
-      - uses: supabase/embeddings-generator@v0.0.5
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: supabase/embeddings-generator@11ad9d1643c95eedeab869935794fdefd0a9768d
         with:
           supabase-url: ${{ secrets.SUPABASE_URL }}
           supabase-service-role-key: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

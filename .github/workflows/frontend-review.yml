@@ -14,7 +14,7 @@ jobs:
   tests_frontend_ubuntu:
     name: Run frontend unit tests on Ubuntu
     timeout-minutes: 60
-    runs-on: ubuntu-latest
+    runs-on: intra-public-ci
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js 20.x
@@ -36,7 +36,7 @@ jobs:
   tests_frontend_windows:
     name: Run frontend unit tests on Windows
     timeout-minutes: 60
-    runs-on: windows-latest
+    runs-on: intra-public-ci
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js 20.x

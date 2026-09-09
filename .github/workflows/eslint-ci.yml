@@ -13,7 +13,7 @@ on:
 jobs:
   eslint_checks:
     name: Run ESLint Linting
-    runs-on: ubuntu-latest
+    runs-on: intra-public-ci
     permissions:
       contents: read
       security-events: write
